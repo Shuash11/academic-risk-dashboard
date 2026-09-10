@@ -1,0 +1,150 @@
+{
+  "status": "PROVISIONAL",
+  "provisional_note": "PROVISIONAL \u2014 requires researcher/institution confirmation before thesis use. No retraining performed; no 2024-2025 holdout touched; ML-EXP-001 untouched.",
+  "graph_compat": "Categorical SimpleImputer sentinel re-declared NaN->'' for the ONNX graph only (fitted most-frequent fills unchanged, no refit). Frontend sends '' for absent categoricals.",
+  "runtime": "onnxruntime-web (CPU only)",
+  "opset": 14,
+  "feature_order": [
+    "GWA",
+    "Number of Failed Courses",
+    "Number of Dropped Courses",
+    "Total Units Taken",
+    "Year Level",
+    "Course/Program Enrolled",
+    "Enrollment History",
+    "Previous Academic Standing"
+  ],
+  "inputs": [
+    {
+      "feature": "GWA",
+      "onnx_name": "GWA",
+      "dtype": "float32",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "Number of Failed Courses",
+      "onnx_name": "Number_of_Failed_Courses",
+      "dtype": "float32",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "Number of Dropped Courses",
+      "onnx_name": "Number_of_Dropped_Courses",
+      "dtype": "float32",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "Total Units Taken",
+      "onnx_name": "Total_Units_Taken",
+      "dtype": "float32",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "Year Level",
+      "onnx_name": "Year_Level",
+      "dtype": "float32",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "Course/Program Enrolled",
+      "onnx_name": "Course_Program_Enrolled",
+      "dtype": "string",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "Enrollment History",
+      "onnx_name": "Enrollment_History",
+      "dtype": "string",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "Previous Academic Standing",
+      "onnx_name": "Previous_Academic_Standing",
+      "dtype": "string",
+      "shape": "[N,1]"
+    }
+  ],
+  "session_input_order": [
+    "GWA",
+    "Number_of_Failed_Courses",
+    "Number_of_Dropped_Courses",
+    "Total_Units_Taken",
+    "Year_Level",
+    "Course_Program_Enrolled",
+    "Enrollment_History",
+    "Previous_Academic_Standing"
+  ],
+  "numeric_median_impute": {
+    "GWA": 1.75,
+    "Number of Failed Courses": 0.0,
+    "Number of Dropped Courses": 0.0,
+    "Total Units Taken": 25.0,
+    "Year Level": 2.0
+  },
+  "categorical_vocabularies": {
+    "Course/Program Enrolled": {
+      "vocabulary": [
+        "AB COMM",
+        "AB ENGLISH",
+        "AB POLSCI",
+        "BEED",
+        "BS CRIM",
+        "BSBA-HRDM",
+        "BSBA-HRM",
+        "BSBA-MM",
+        "BSCS",
+        "BSED-ENGL",
+        "BSED-FIL",
+        "BSED-MATH",
+        "BSED-SOCSTUD",
+        "BSISM",
+        "BSM",
+        "BSOA",
+        "GEN  MID",
+        "GRADE 11",
+        "GRADE 12"
+      ],
+      "absent_value_fill_most_frequent": "BS CRIM",
+      "unknown_handling": "ignore (all-zero one-hot slice)"
+    },
+    "Enrollment History": {
+      "vocabulary": [
+        "Enrollment #1",
+        "Enrollment #10",
+        "Enrollment #11",
+        "Enrollment #12",
+        "Enrollment #2",
+        "Enrollment #3",
+        "Enrollment #4",
+        "Enrollment #5",
+        "Enrollment #6",
+        "Enrollment #7",
+        "Enrollment #8",
+        "Enrollment #9"
+      ],
+      "absent_value_fill_most_frequent": "Enrollment #2",
+      "unknown_handling": "ignore (all-zero one-hot slice)"
+    },
+    "Previous Academic Standing": {
+      "vocabulary": [
+        "Good Standing",
+        "New/No Previous Record",
+        "With Dropped Courses",
+        "With Failed Courses"
+      ],
+      "absent_value_fill_most_frequent": "Good Standing",
+      "unknown_handling": "ignore (all-zero one-hot slice)"
+    }
+  },
+  "categorical_absent_sentinel": "Send \"\" for a missing categorical; the graph fills the most-frequent value above. Do not send null/NaN in string tensors.",
+  "numeric_missing": "Send NaN for a missing numeric; the graph median-imputes.",
+  "onehot_order": "concatenated in categorical_features order",
+  "outputs": {
+    "label": "int64 [N] (classes [0, 1]; 1 = provisional at-risk)",
+    "probabilities": "float32 [N,2] columns align with classes [0,1]"
+  },
+  "classes": [
+    0,
+    1
+  ]
+}

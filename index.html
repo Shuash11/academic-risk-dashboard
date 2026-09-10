@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Academic Risk Dashboard — PROVISIONAL Demo</title>
+  <meta name="description" content="Static demo dashboard that runs 4 provisional ONNX models in-browser. Provisional/demo outputs only. No data leaves the browser." />
+  <link rel="stylesheet" href="./styles.css" />
+  <!-- onnxruntime-web (CPU/WASM only). Pinned version for reproducibility. -->
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.min.js"></script>
+</head>
+<body>
+  <div class="provisional-banner" role="alert">
+    <strong>PROVISIONAL — DEMO ONLY.</strong>
+    <span>Outputs are provisional and illustrative, not study-validated. Supportive use only — never punitive. No data leaves this browser.</span>
+  </div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div>
+        <h1>Academic-Risk Dashboard <span class="pill pill-provisional">PROVISIONAL</span></h1>
+        <p class="subtitle">
+          Static demo (HTML&nbsp;+&nbsp;CSS&nbsp;+&nbsp;JS, no build step) that runs four provisional ONNX
+          classifiers fully in-browser and produces a report. No retraining. No thesis claims.
+        </p>
+        <p class="meta-line">
+          Models: <code>./models/</code> (opset 14, CPU) &nbsp;·&nbsp;
+          Contract: <code>onnx_inputs.json</code> &nbsp;·&nbsp;
+          Parity ref: <code>onnx_parity.json</code> (pred exact, proba atol 1e&#8209;5)
+        </p>
+      </div>
+      <div class="header-badges" aria-label="Model load status">
+        <span class="model-badge" data-model-badge="decision_tree">Decision Tree …</span>
+        <span class="model-badge" data-model-badge="random_forest">Random Forest …</span>
+        <span class="model-badge" data-model-badge="logistic_regression">Log. Regression …</span>
+        <span class="model-badge" data-model-badge="naive_bayes">Naïve Bayes …</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ============ Controls ============ -->
+    <section class="card controls" aria-labelledby="controls-h">
+      <h2 id="controls-h">1 · Data &amp; model controls</h2>
+
+      <fieldset>
+        <legend>Model selection</legend>
+        <label class="radio-row"><input type="radio" name="model" value="compare-all" checked /> Compare all (4 models)</label>
+        <label class="radio-row"><input type="radio" name="model" value="decision_tree" /> Decision Tree <span class="hint">— light, fast</span></label>
+        <label class="radio-row"><input type="radio" name="model" value="random_forest" /> Random Forest <span class="hint">— ~23&nbsp;MB, slower to load</span></label>
+        <label class="radio-row"><input type="radio" name="model" value="logistic_regression" /> Logistic Regression</label>
+        <label class="radio-row"><input type="radio" name="model" value="naive_bayes" /> Naïve Bayes</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Input rows (CSV)</legend>
+        <p class="help">
+          Accepted real-schema headers (case-insensitive). The 8 model features are mapped;
+          ID / outcome / status columns are ignored for inference (Student&nbsp;ID kept as a display label only).
+        </p>
+        <details class="schema-details">
+          <summary>Show accepted headers</summary>
+          <ul class="schema-list">
+            <li><strong>Features →</strong> GWA · Number of Failed Courses · Number of Dropped Courses ·
+              Total Units Taken · Year Level · Course/Program Enrolled · Enrollment History ·
+              Previous Academic Standing</li>
+            <li><strong>Ignored (never fed to models) →</strong> Student ID (display only) · Academic Year ·
+              Semester · Final Grades · any outcome / status / label columns</li>
+            <li><strong>Missing →</strong> numerics treated as <code>NaN</code> (median-imputed in-graph);
+              categoricals as empty (most-frequent fill in-graph). Counts are reported, never silently dropped.</li>
+          </ul>
+        </details>
+        <div class="btn-row">
+          <label class="btn" for="csv-file">Import CSV…<input id="csv-file" type="file" accept=".csv,text/csv" hidden /></label>
+          <button id="btn-sample" type="button" class="btn btn-secondary">Load 3 synthetic demo rows</button>
+        </div>
+        <div class="btn-row">
+          <button id="btn-sample-csv" type="button" class="btn btn-ghost">Download sample CSV</button>
+          <button id="btn-clear" type="button" class="btn btn-ghost">Clear rows</button>
+        </div>
+        <p class="hint">Synthetic demo rows are always labeled <span class="tag">SYNTHETIC</span> and are never real student records.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Run</legend>
+        <div class="btn-row">
+          <button id="btn-run" type="button" class="btn btn-primary">Run predictions (provisional)</button>
+        </div>
+        <p class="hint">Inference runs locally via onnxruntime-web, CPU/WASM backend. Nothing is uploaded.</p>
+      </fieldset>
+
+      <div id="status-log" class="status-log" aria-live="polite" aria-label="Status messages">
+        <p class="status-idle">Idle. Load demo rows or import a CSV, then run predictions.</p>
+      </div>
+    </section>
+
+    <!-- ============ Summary ============ -->
+    <section class="card" aria-labelledby="summary-h">
+      <h2 id="summary-h">2 · Provisional summary <span class="pill pill-demo">DEMO — descriptive only</span></h2>
+      <p class="help">Counts and band shares below describe <em>this demo run only</em>. They are not validation metrics (no recall/precision claims).</p>
+      <div id="summary-cards" class="summary-cards">
+        <p class="placeholder">No results yet — run predictions to populate this section.</p>
+      </div>
+      <div class="table-wrap">
+        <table id="summary-table" class="data-table" hidden>
+          <caption>Per-model descriptive summary of demo outputs (provisional, not evaluation metrics).</caption>
+          <thead>
+            <tr>
+              <th scope="col">Model (provisional)</th>
+              <th scope="col">Rows</th>
+              <th scope="col">Predicted at-risk (label&nbsp;=&nbsp;1)</th>
+              <th scope="col">Rate</th>
+              <th scope="col">Mean P(at-risk)</th>
+              <th scope="col">Low</th>
+              <th scope="col">Medium</th>
+              <th scope="col">High</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ Charts ============ -->
+    <section class="card" aria-labelledby="charts-h">
+      <h2 id="charts-h">3 · Charts <span class="pill pill-demo">PROVISIONAL</span></h2>
+      <div class="charts-grid">
+        <figure class="chart-fig">
+          <figcaption>Risk-band distribution (selected model view)</figcaption>
+          <canvas id="chart-bands" width="640" height="360" role="img" aria-label="Bar chart of Low, Medium and High band counts"></canvas>
+        </figure>
+        <figure class="chart-fig">
+          <figcaption>P(at-risk) histogram, 10 bins (selected model view)</figcaption>
+          <canvas id="chart-hist" width="640" height="360" role="img" aria-label="Histogram of predicted at-risk probabilities"></canvas>
+        </figure>
+      </div>
+      <p class="hint">Charts are drawn with plain canvas — no chart dependency. Bands: Low 0–0.39 · Medium 0.40–0.69 · High 0.70–1.00.</p>
+    </section>
+
+    <!-- ============ Results ============ -->
+    <section class="card" aria-labelledby="results-h">
+      <h2 id="results-h">4 · Per-row predictions <span class="pill pill-demo">PROVISIONAL</span></h2>
+      <div class="table-wrap">
+        <table id="results-table" class="data-table" hidden>
+          <caption>Per-row provisional prediction, P(at-risk), and band per model. Class 1 = provisional at-risk.</caption>
+          <thead><tr id="results-head-row"></tr></thead>
+          <tbody id="results-body"></tbody>
+        </table>
+        <p id="results-empty" class="placeholder">No predictions yet.</p>
+      </div>
+      <div id="drilldown" class="drilldown" hidden aria-live="polite"></div>
+    </section>
+
+    <!-- ============ Export ============ -->
+    <section class="card" aria-labelledby="export-h">
+      <h2 id="export-h">5 · Export provisional report</h2>
+      <p class="help">Every export is stamped <strong>PROVISIONAL — DEMO ONLY</strong> with the band definitions and supportive-use notice.</p>
+      <div class="btn-row">
+        <button id="btn-print" type="button" class="btn">Print / save PDF (print-friendly)</button>
+        <button id="btn-csv" type="button" class="btn btn-secondary">Download predictions CSV</button>
+        <button id="btn-json" type="button" class="btn btn-secondary">Download report JSON</button>
+      </div>
+      <details class="schema-details">
+        <summary>Model &amp; contract reference</summary>
+        <ul class="schema-list">
+          <li>Inputs (8, in session order): 5 float32 <code>[N,1]</code> — GWA, Number_of_Failed_Courses,
+            Number_of_Dropped_Courses, Total_Units_Taken, Year_Level; 3 string <code>[N,1]</code> —
+            Course_Program_Enrolled, Enrollment_History, Previous_Academic_Standing.</li>
+          <li>Outputs: <code>label</code> int64 <code>[N]</code> (classes [0,1], 1 = provisional at-risk);
+            <code>probabilities</code> float32 <code>[N,2]</code>, columns align with [0,1].</li>
+          <li>Risk bands: Low 0–0.39 · Medium 0.40–0.69 · High 0.70–1.00 (applied to P(at-risk)).</li>
+          <li>Parity reference (<code>onnx_parity.json</code>): all 4 models converted, opset 14,
+            predictions exact-match, max |Δproba| ≤ 1e&#8209;5. Frontend sends <code>NaN</code> / <code>""</code> for missing.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>PROVISIONAL — DEMO ONLY.</strong> Not study-validated. Supportive use only, never punitive.
+      All inference runs locally in this page; no data leaves the browser. Study context: risk bands
+      Low 0–0.39 / Medium 0.40–0.69 / High 0.70–1.00.</p>
+    <p class="hint">Open this file directly (<code>index.html</code>) · onnxruntime-web CDN + CPU/WASM · models in <code>./models/</code>.
+      If models fail to load under <code>file://</code> in Chrome, use Firefox or serve the folder locally (see <code>README.txt</code>).</p>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

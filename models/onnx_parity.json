@@ -1,0 +1,319 @@
+{
+  "status": "PROVISIONAL",
+  "provisional_note": "PROVISIONAL \u2014 requires researcher/institution confirmation before thesis use. No retraining performed; no 2024-2025 holdout touched; ML-EXP-001 untouched.",
+  "graph_compat": "Categorical SimpleImputer sentinel re-declared NaN->'' for the ONNX graph only (fitted most-frequent fills unchanged, no refit). Frontend sends '' for absent categoricals.",
+  "no_retraining": true,
+  "holdout_touched": false,
+  "ml_exp_001_touched": false,
+  "smote": "none present in these pkls (fit-time only by design); stripped/not applicable",
+  "tolerance": {
+    "proba_atol": 1e-05,
+    "pred": "exact"
+  },
+  "models": {
+    "decision_tree": {
+      "n_rows": 6,
+      "sklearn_pred": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "onnx_pred": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "pred_match": true,
+      "sklearn_proba": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0
+        ]
+      ],
+      "onnx_proba": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0
+        ]
+      ],
+      "max_abs_proba_diff": 0.0,
+      "proba_match_tol_1e5": true,
+      "status": "converted",
+      "opset": 14
+    },
+    "random_forest": {
+      "n_rows": 6,
+      "sklearn_pred": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "onnx_pred": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "pred_match": true,
+      "sklearn_proba": [
+        [
+          0.99,
+          0.01
+        ],
+        [
+          0.03,
+          0.97
+        ],
+        [
+          0.11,
+          0.89
+        ],
+        [
+          0.97,
+          0.03
+        ],
+        [
+          0.05,
+          0.95
+        ],
+        [
+          0.976667,
+          0.023333
+        ]
+      ],
+      "onnx_proba": [
+        [
+          0.99,
+          0.01
+        ],
+        [
+          0.030001,
+          0.969999
+        ],
+        [
+          0.110001,
+          0.889999
+        ],
+        [
+          0.97,
+          0.03
+        ],
+        [
+          0.050001,
+          0.949999
+        ],
+        [
+          0.976667,
+          0.023333
+        ]
+      ],
+      "max_abs_proba_diff": 6.270408630382196e-07,
+      "proba_match_tol_1e5": true,
+      "status": "converted",
+      "opset": 14
+    },
+    "logistic_regression": {
+      "n_rows": 6,
+      "sklearn_pred": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "onnx_pred": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "pred_match": true,
+      "sklearn_proba": [
+        [
+          0.91109,
+          0.08891
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.000967,
+          0.999033
+        ],
+        [
+          0.993791,
+          0.006209
+        ],
+        [
+          0.001535,
+          0.998465
+        ],
+        [
+          0.983064,
+          0.016936
+        ]
+      ],
+      "onnx_proba": [
+        [
+          0.91109,
+          0.08891
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.000967,
+          0.999033
+        ],
+        [
+          0.993791,
+          0.006209
+        ],
+        [
+          0.001535,
+          0.998465
+        ],
+        [
+          0.983064,
+          0.016936
+        ]
+      ],
+      "max_abs_proba_diff": 4.3230340196487305e-08,
+      "proba_match_tol_1e5": true,
+      "status": "converted",
+      "opset": 14
+    },
+    "naive_bayes": {
+      "n_rows": 6,
+      "sklearn_pred": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "onnx_pred": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "pred_match": true,
+      "sklearn_proba": [
+        [
+          0.999748,
+          0.000252
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0
+        ]
+      ],
+      "onnx_proba": [
+        [
+          0.999748,
+          0.000252
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0
+        ]
+      ],
+      "max_abs_proba_diff": 1.6885799780652633e-07,
+      "proba_match_tol_1e5": true,
+      "status": "converted",
+      "opset": 14
+    }
+  }
+}

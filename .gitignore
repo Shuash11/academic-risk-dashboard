@@ -1,0 +1,35 @@
+# E2E / test-runner artifacts — NEVER committed (excluded by policy)
+e2e/
+e2e-tests/
+tests/e2e/
+test-results/
+playwright-report/
+playwright/.cache/
+.cypress/
+cypress/screenshots/
+cypress/videos/
+screenshots/
+*.spec.js
+*.spec.ts
+*.e2e.js
+*.e2e.ts
+playwright.config.*
+cypress.config.*
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node / tooling (static site needs no build; ignore if ever added locally)
+node_modules/
+dist/
+coverage/
+.nyc_output/
