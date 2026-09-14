@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    font-family: Inter, 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    @apply bg-[#f8fafc] text-slate-900 leading-relaxed text-[0.95rem] m-0 antialiased;
+  }
+  code { @apply font-mono text-[0.84em] bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-md; }
+}
+
+@layer components {
+  .focus-ring:focus-visible { @apply outline outline-2 outline-slate-900 outline-offset-2; }
+}
+
+/* print — clean report, full table for print */
+@media print {
+  body { background: #fff !important; font-size: 9pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  header { position: static !important; border-bottom: 2px solid #000 !important; }
+  nav, button, label, input, select, details summary { display: none !important; }
+  fieldset { border: 1px solid #000 !important; }
+  .status-log, details { display: none !important; }
+  main { padding: 0 !important; }
+  section { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd !important; }
+  footer { border-top: 1px solid #000 !important; }
+  .screen-only { display: none !important; }
+  .print-only { display: block !important; }
+  .print-only table { page-break-inside: auto; }
+  .print-only tr { page-break-inside: avoid; page-break-after: auto; }
+  .print-only thead { display: table-header-group; }
+}
+
+.status-log { scrollbar-width: thin; scrollbar-color: #cbd5e1 #f8fafc; }
