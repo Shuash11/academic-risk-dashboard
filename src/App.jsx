@@ -9,6 +9,7 @@ import { Header } from './components/Header.jsx'
 import { Nav } from './components/Nav.jsx'
 import { About } from './pages/About.jsx'
 import { Compare } from './pages/Compare.jsx'
+import { Performance } from './pages/Performance.jsx'
 import { Controls } from './components/Controls.jsx'
 import { StatusLog } from './components/StatusLog.jsx'
 import { Summary } from './components/Summary.jsx'
@@ -250,6 +251,7 @@ export default function App() {
           </div>
         </main>
       )}
+      {activeTab === 'performance' && <Performance />}
       {activeTab === 'about' && <About />}
       {activeTab === 'compare' && <Compare />}
       <footer className="border-t border-slate-200 bg-white mt-8">

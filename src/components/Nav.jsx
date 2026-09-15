@@ -1,6 +1,7 @@
 export function Nav({ active, onChange }) {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard' },
+    { id: 'performance', label: 'Performance' },
     { id: 'about', label: 'About' },
     { id: 'compare', label: 'Compare' },
   ]
