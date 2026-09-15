@@ -2,8 +2,6 @@ export function Controls({
   selectedModel,
   onModelChange,
   onFileChange,
-  onLoadSample,
-  onDownloadSampleCsv,
   onClear,
   onRun,
   isRunning,
@@ -11,6 +9,10 @@ export function Controls({
   fileInputRef,
   uploadedFile,
   rowCount,
+  onShowActivity,
+  activityCount,
+  rowLimit,
+  onRowLimitChange,
 }) {
   return (
     <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm">
@@ -71,24 +73,29 @@ export function Controls({
                 <div className="hidden sm:flex w-9 h-9 rounded-full bg-slate-900 text-white items-center justify-center text-sm">↑</div>
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Drop CSV or choose file</p>
-                  <p className="text-xs text-slate-500">Headers are case-insensitive · up to 5,000 rows</p>
+                  <p className="text-xs text-slate-500">Headers are case-insensitive</p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1.5 text-xs">
+                  <label className="font-medium text-slate-600 whitespace-nowrap">Row limit</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={rowLimit}
+                    onChange={(e) => { const v = parseInt(e.target.value, 10); onRowLimitChange(isFinite(v) && v >= 0 ? v : 0) }}
+                    disabled={isRunning}
+                    className="w-20 border border-slate-200 rounded-lg bg-white px-2 py-1.5 text-xs font-mono text-center focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50"
+                  />
+                  <span className="text-slate-500 whitespace-nowrap">{rowLimit === 0 ? 'no limit' : ''}</span>
+                </div>
                 <label className={`relative inline-flex items-center justify-center gap-2 font-semibold text-sm px-4 py-2.5 rounded-xl shadow transition ${isRunning ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-slate-900 hover:bg-black text-white cursor-pointer'}`}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5-5"/><path d="M12 3v12"/></svg>
                   Import CSV<input ref={fileInputRef} onChange={onFileChange} type="file" accept=".csv,text/csv" disabled={isRunning} hidden aria-label="Import CSV file" className="absolute inset-0 opacity-0 cursor-pointer" />
                 </label>
-                <button onClick={onLoadSample} disabled={isRunning} type="button" className="inline-flex items-center justify-center bg-white hover:bg-slate-50 text-slate-900 font-semibold text-sm px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed">Load sample rows</button>
+                <button onClick={onClear} disabled={isRunning} type="button" className="inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium px-2.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 hover:bg-white transition disabled:opacity-50 disabled:cursor-not-allowed">Clear</button>
               </div>
-            </div>
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-              <button onClick={onDownloadSampleCsv} disabled={isRunning} type="button" className="inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium px-2.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 hover:bg-white transition disabled:opacity-50 disabled:cursor-not-allowed">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-                Download sample CSV
-              </button>
-              <button onClick={onClear} disabled={isRunning} type="button" className="inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium px-2.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 hover:bg-white transition disabled:opacity-50 disabled:cursor-not-allowed">Clear</button>
-              <span className="ml-auto inline-flex items-center gap-1.5 text-[0.72rem] text-slate-500"><span className="w-1.5 h-1.5 rounded-full bg-violet-500" /> SAMPLE = no real data</span>
             </div>
           </div>
 
@@ -98,21 +105,28 @@ export function Controls({
                 <span className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">✓</span>
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-emerald-900 truncate max-w-[22ch] sm:max-w-[32ch]" title={uploadedFile.name}>
-                    {uploadedFile.isSample ? 'Sample rows loaded' : 'File uploaded'} — <span className="font-mono font-semibold">{uploadedFile.name}</span>
+                    File uploaded — <span className="font-mono font-semibold">{uploadedFile.name}</span>
                   </p>
                   <p className="text-xs text-emerald-800">
                     {uploadedFile.count.toLocaleString()} rows · headers mapped · <span className="font-medium">ready to run</span>
                   </p>
                 </div>
               </div>
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold tracking-wide uppercase bg-white border border-emerald-200 text-emerald-800 rounded-full px-2.5 py-1 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Loaded
-              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={onShowActivity} type="button" className="relative inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:text-emerald-900 bg-white border border-emerald-200 rounded-full px-3 py-1.5 transition hover:shadow-sm">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+                  Activity
+                  {activityCount > 0 && <span className="inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] rounded-full bg-emerald-600 text-white text-[0.6rem] font-bold px-1">{activityCount}</span>}
+                </button>
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold tracking-wide uppercase bg-white border border-emerald-200 text-emerald-800 rounded-full px-2.5 py-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Loaded
+                </span>
+              </div>
             </div>
           ) : (
             <div className="mx-3 mt-3 mb-3 rounded-xl border border-dashed border-slate-200 bg-white px-3.5 py-2.5 flex items-center gap-2.5 text-xs text-slate-500">
               <span className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[0.7rem]">∅</span>
-              No file yet — import a CSV or load sample rows to begin.
+              No file yet — import a CSV to begin.
             </div>
           )}
         </div>
@@ -162,7 +176,7 @@ export function Controls({
               )}
             </button>
           </div>
-          {isRunning && <p className="relative mt-3 text-[0.7rem] text-slate-400">Buttons locked until scoring finishes • you’ll see live updates in the log below</p>}
+          {isRunning && <p className="relative mt-3 text-[0.7rem] text-slate-400">Buttons locked until scoring finishes · you'll see live updates in the activity log</p>}
         </div>
       </div>
     </section>

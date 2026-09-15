@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
-import { AppConfig, SAMPLE_HEADERS, SAMPLE_ROWS } from './config.js'
+import { AppConfig } from './config.js'
 import { CsvParser } from './lib/csvParser.js'
 import { FeatureMapper } from './lib/featureMapper.js'
 import { RiskBands } from './lib/riskBands.js'
@@ -7,8 +7,13 @@ import { ReportExporter } from './lib/reportExporter.js'
 import { OnnxRunner } from './lib/onnxRunner.js'
 import { Header } from './components/Header.jsx'
 import { Nav } from './components/Nav.jsx'
+import { Overlay } from './components/Overlay.jsx'
 import { About } from './pages/About.jsx'
 import { Compare } from './pages/Compare.jsx'
+import { AcademicProfile } from './pages/AcademicProfile.jsx'
+import { ModelEvaluation } from './pages/ModelEvaluation.jsx'
+import { FeatureImportance } from './pages/FeatureImportance.jsx'
+import { InterventionFramework } from './pages/InterventionFramework.jsx'
 import { Controls } from './components/Controls.jsx'
 import { StatusLog } from './components/StatusLog.jsx'
 import { Summary } from './components/Summary.jsx'
@@ -34,6 +39,10 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false)
   const [runProgress, setRunProgress] = useState(null)
   const [uploadedFile, setUploadedFile] = useState(null)
+  const [isImporting, setIsImporting] = useState(false)
+  const [importProgress, setImportProgress] = useState(null)
+  const [showActivityModal, setShowActivityModal] = useState(false)
+  const [rowLimit, setRowLimit] = useState(AppConfig.maxRows)
   const fileRef = useRef(null)
   const runnerRef = useRef(null)
   const hasInit = useRef(false)
@@ -75,49 +84,6 @@ export default function App() {
     return allModels[0]
   }, [selectedModel, results])
 
-  const loadSampleRows = () => {
-    const newRows = SAMPLE_ROWS.map((s, i) => ({
-      index: i,
-      displayId: s.id,
-      synthetic: true,
-      gwa: s.gwa,
-      failed: s.failed,
-      dropped: s.dropped,
-      units: s.units,
-      year: s.year,
-      program: s.program,
-      enrollHist: s.enrollHist,
-      prevStanding: s.prevStanding,
-    }))
-    setRows(newRows)
-    setResults({})
-    setSummary(null)
-    setSelectedRow(-1)
-    setActiveModels([])
-    setUploadedFile({ name: 'Sample rows', count: newRows.length, isSample: true })
-    info('Loaded <strong>3 sample rows</strong> (SAMPLE-01…03). Row 03 has empty fields to show in-graph imputation. Press Run.')
-    setActiveTab('dashboard')
-  }
-
-  const sampleCsvText = () => {
-    function f(v) { return typeof v === 'number' && !isFinite(v) ? '' : v }
-    const lines = [SAMPLE_HEADERS.map(ReportExporter.csvCell).join(',')]
-    const meta = [
-      ['2024-2025', '1st Semester', ''],
-      ['2024-2025', '2nd Semester', ''],
-      ['2024-2025', '1st Semester', ''],
-    ]
-    SAMPLE_ROWS.forEach((s, i) => {
-      lines.push([s.id, meta[i][0], meta[i][1], meta[i][2], f(s.gwa), s.failed, s.dropped, s.program, s.year, s.enrollHist, s.units, s.prevStanding].map(ReportExporter.csvCell).join(','))
-    })
-    return lines.join('\r\n') + '\r\n'
-  }
-
-  const downloadSampleCsv = () => {
-    ReportExporter.download('sample_rows.csv', sampleCsvText(), 'text/csv')
-    note('Downloaded the 3-row sample CSV.')
-  }
-
   const clearAll = () => {
     setRows([])
     setResults({})
@@ -125,36 +91,71 @@ export default function App() {
     setSelectedRow(-1)
     setActiveModels([])
     setUploadedFile(null)
+    setStatus([])
     if (fileRef.current) fileRef.current.value = ''
-    note('Cleared all rows and results.')
   }
 
-  const ingestCsv = (text, name) => {
-    const parsed = CsvParser.parse(text)
+  const ingestCsv = async (text, name) => {
+    setIsImporting(true)
+    setImportProgress({ current: 1, total: 3, phase: 'Parsing CSV…', detail: 'Reading file and mapping headers' })
+    await new Promise((r) => setTimeout(r, 60))
+
+    let parsed
+    try {
+      parsed = CsvParser.parse(text)
+    } catch (e) {
+      setIsImporting(false)
+      setImportProgress(null)
+      error('Could not parse CSV: ' + e.message)
+      return
+    }
+
     if (parsed.headers.length === 0 || parsed.records.length === 0) {
+      setIsImporting(false)
+      setImportProgress(null)
       error('Cannot parse CSV (<code>' + name + '</code>): no header or data rows found. Expect headers like GWA, Failed Courses, …')
       return
     }
+
+    setImportProgress({ current: 2, total: 3, phase: 'Mapping features…', detail: 'Matching columns to model inputs' })
+    await new Promise((r) => setTimeout(r, 40))
+
     const mapping = FeatureMapper.mapHeaders(parsed.headers)
     const missing = FeatureMapper.FEATURES.filter((k) => mapping[k] === undefined)
     if (missing.length === FeatureMapper.FEATURES.length) {
+      setIsImporting(false)
+      setImportProgress(null)
       error('No expected headers found in <code>' + name + '</code>. Got: <code>' + parsed.headers.join(' | ') + '</code>.')
       return
     }
     if (missing.length > 0) warn('Missing columns [' + missing.join(', ') + '] — those inputs will be imputed in-graph.')
+
+    setImportProgress({ current: 3, total: 3, phase: 'Converting rows…', detail: 'Processing ' + parsed.records.length.toLocaleString() + ' records' })
+    await new Promise((r) => setTimeout(r, 40))
+
     let converted = FeatureMapper.toModelRows(parsed.headers, parsed.records, mapping)
-    if (converted.rows.length > AppConfig.maxRows) {
-      warn('CSV has ' + converted.rows.length + ' rows; truncated to ' + AppConfig.maxRows + '.')
-      converted.rows = converted.rows.slice(0, AppConfig.maxRows)
+    if (rowLimit > 0 && converted.rows.length > rowLimit) {
+      warn('CSV has ' + converted.rows.length + ' rows; truncated to ' + rowLimit + '.')
+      converted.rows = converted.rows.slice(0, rowLimit)
     }
+    let mn = 0, mc = 0
+    converted.rows.forEach((r) => {
+      ;[r.gwa, r.failed, r.dropped, r.units, r.year].forEach((v) => { if (!(typeof v === 'number' && isFinite(v))) mn++ })
+      ;[r.program, r.enrollHist, r.prevStanding].forEach((v) => { if (!v) mc++ })
+    })
+    converted = { ...converted, missingNumeric: mn, missingCat: mc, badNumeric: 0 }
+
     setRows(converted.rows)
     setResults({})
     setSummary(null)
     setSelectedRow(-1)
     setActiveModels([])
     setUploadedFile({ name, count: converted.rows.length, isSample: false })
-    info('Imported <strong>' + converted.rows.length + ' row(s)</strong> from <code>' + name + '</code>. Mapped ' + (FeatureMapper.FEATURES.length - missing.length) + '/8 features. Missing numerics: ' + converted.missingNumeric + ' → NaN; categoricals: ' + converted.missingCat + ' → ""; bad numerics: ' + converted.badNumeric + ' → NaN. Press Run.')
+    info('Imported <strong>' + converted.rows.length + ' row(s)</strong> from <code>' + name + '</code>. Mapped ' + (FeatureMapper.FEATURES.length - missing.length) + '/8 features. Missing numeric cells: ' + converted.missingNumeric + ' (will use median imputation); missing categorical cells: ' + converted.missingCat + ' (will use most-frequent fill). Press Run.')
     setActiveTab('dashboard')
+
+    setIsImporting(false)
+    setImportProgress(null)
   }
 
   const handleFile = (e) => {
@@ -162,7 +163,7 @@ export default function App() {
     if (!file) return
     const reader = new FileReader()
     reader.onload = () => {
-      try { ingestCsv(String(reader.result || ''), file.name) } catch (err) { error('Could not parse CSV: ' + err.message) }
+      ingestCsv(String(reader.result || ''), file.name)
     }
     reader.onerror = () => error('Could not read <code>' + file.name + '</code>.')
     reader.readAsText(file)
@@ -177,7 +178,7 @@ export default function App() {
   })
 
   const run = async () => {
-    if (rows.length === 0) { error('Nothing to run — load sample rows or import a CSV first.'); return }
+    if (rows.length === 0) { error('Nothing to run — import a CSV first.'); return }
     try { await runnerRef.current.ensureOrt() } catch (err) { error(err.message); return }
     const models = resolveActiveModels(selectedModel)
     setActiveModels(models)
@@ -193,7 +194,6 @@ export default function App() {
         note('Loading <code>' + m.file + '</code> …')
         await new Promise((r) => setTimeout(r, 30))
         await runnerRef.current.ensureModel(m.id)
-        // chunked inference to keep UI responsive (5000 rows in one go blocks main thread)
         const chunkCount = Math.ceil(rows.length / CHUNK)
         let allLabels = []
         let allProba = []
@@ -207,9 +207,7 @@ export default function App() {
           const out = await runnerRef.current.predict(m.id, chunk)
           allLabels.push(...out.labels)
           allProba.push(...out.proba)
-          // yield to browser so Activity log stays scrollable
           await new Promise((r) => setTimeout(r, 0))
-          // allow React to paint progress
           await new Promise((r) => requestAnimationFrame(() => r()))
         }
         const packed = allLabels.map((label, idx) => ({ label, proba: allProba[idx][AppConfig.atRiskClass], band: RiskBands.bandOf(allProba[idx][AppConfig.atRiskClass]) }))
@@ -236,13 +234,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
+      <Overlay show={isImporting} label="Importing data…" sub={importProgress?.phase || 'Processing CSV file'} progress={importProgress} />
+      <Overlay show={isRunning} label="Running predictions…" sub="Processing models locally in your browser" progress={runProgress ? { current: runProgress.current, total: runProgress.total, phase: runProgress.label, detail: `${rows.length.toLocaleString()} rows × ${activeModels.length || resolveActiveModels(selectedModel).length} model(s)` } : null} />
       <Header />
       <Nav active={activeTab} onChange={setActiveTab} />
       {activeTab === 'dashboard' && (
         <main id="main" tabIndex={-1} className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex flex-col gap-6">
-            <Controls selectedModel={selectedModel} onModelChange={setSelectedModel} onFileChange={handleFile} onLoadSample={loadSampleRows} onDownloadSampleCsv={downloadSampleCsv} onClear={clearAll} onRun={run} isRunning={isRunning} runProgress={runProgress} fileInputRef={fileRef} uploadedFile={uploadedFile} rowCount={rows.length} />
-            <StatusLog entries={status} onClear={clearLog} />
+            <Controls selectedModel={selectedModel} onModelChange={setSelectedModel} onFileChange={handleFile} onClear={clearAll} onRun={run} isRunning={isRunning} runProgress={runProgress} fileInputRef={fileRef} uploadedFile={uploadedFile} rowCount={rows.length} onShowActivity={() => setShowActivityModal(true)} activityCount={status.length} rowLimit={rowLimit} onRowLimitChange={setRowLimit} />
             <Summary summary={summary} />
             <Charts results={results} chartModel={chartModel} />
             <ResultsTable rows={rows} results={results} activeModels={activeModels} allModels={allModels} selectedModelId={selectedModel} selectedRow={selectedRow} onSelectRow={setSelectedRow} />
@@ -252,12 +251,39 @@ export default function App() {
       )}
       {activeTab === 'about' && <About />}
       {activeTab === 'compare' && <Compare />}
+      {activeTab === 'profile' && <AcademicProfile rows={rows} />}
+      {activeTab === 'evaluation' && <ModelEvaluation />}
+      {activeTab === 'predictors' && <FeatureImportance />}
+      {activeTab === 'intervention' && <InterventionFramework />}
       <footer className="border-t border-slate-200 bg-white mt-8">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
           <p className="font-semibold text-slate-900">Academic Risk Dashboard</p>
           <p className="text-slate-500 text-xs">© 2026 · All rights reserved.</p>
         </div>
       </footer>
+
+      {showActivityModal && (
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowActivityModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-2xl max-h-[80vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
+              <div className="flex items-center gap-3">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <h2 className="text-sm font-bold tracking-wide uppercase text-slate-700">Activity Log</h2>
+                <span className="text-xs bg-white border border-slate-200 rounded-full px-2 py-0.5 font-mono text-slate-600">{status.length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={clearLog} disabled={status.length === 0} className="text-xs font-medium text-slate-600 hover:text-slate-900 disabled:opacity-40 px-2 py-1">Clear</button>
+                <button onClick={() => setShowActivityModal(false)} className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <StatusLog entries={status} onClear={clearLog} compact />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

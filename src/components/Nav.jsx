@@ -1,6 +1,10 @@
 export function Nav({ active, onChange }) {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard' },
+    { id: 'profile', label: 'Academic Profile' },
+    { id: 'evaluation', label: 'Evaluation' },
+    { id: 'predictors', label: 'Predictors' },
+    { id: 'intervention', label: 'Intervention' },
     { id: 'about', label: 'About' },
     { id: 'compare', label: 'Compare' },
   ]

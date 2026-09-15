@@ -1,0 +1,778 @@
+{
+  "status": "VALIDATED",
+  "generated_at": "2026-09-15T18:14:48.921309",
+  "models": {
+    "decision_tree": {
+      "label": "Decision Tree",
+      "features": [
+        {
+          "name": "Number_of_Failed_Courses",
+          "importance": 0.775352
+        },
+        {
+          "name": "GWA",
+          "importance": 0.155128
+        },
+        {
+          "name": "Number_of_Dropped_Courses",
+          "importance": 0.06952
+        },
+        {
+          "name": "Total_Units_Taken",
+          "importance": 0.0
+        },
+        {
+          "name": "Year_Level",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_AB COMM",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_AB ENGLISH",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_AB POLSCI",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_ACT",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BEED",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BS CRIM",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-FM",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-HRDM",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-HRM",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-MM",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSCS",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-ENGL",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-FIL",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-MAPEH",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-MATH",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-SOCSTUD",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSISM",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSM",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_BSOA",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_DPE",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_GEN  MID",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_GRADE 11",
+          "importance": 0.0
+        },
+        {
+          "name": "Course/Program_Enrolled_GRADE 12",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #1",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #10",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #11",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #12",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #13",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #14",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #15",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #2",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #3",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #4",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #5",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #6",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #7",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #8",
+          "importance": 0.0
+        },
+        {
+          "name": "Enrollment_History_Enrollment #9",
+          "importance": 0.0
+        },
+        {
+          "name": "Previous_Academic_Standing_Good Standing",
+          "importance": 0.0
+        },
+        {
+          "name": "Previous_Academic_Standing_New/No Previous Record",
+          "importance": 0.0
+        },
+        {
+          "name": "Previous_Academic_Standing_With Dropped Courses",
+          "importance": 0.0
+        },
+        {
+          "name": "Previous_Academic_Standing_With Failed Courses",
+          "importance": 0.0
+        }
+      ]
+    },
+    "random_forest": {
+      "label": "Random Forest",
+      "features": [
+        {
+          "name": "Number_of_Failed_Courses",
+          "importance": 0.442973
+        },
+        {
+          "name": "GWA",
+          "importance": 0.358008
+        },
+        {
+          "name": "Number_of_Dropped_Courses",
+          "importance": 0.142534
+        },
+        {
+          "name": "Previous_Academic_Standing_Good Standing",
+          "importance": 0.015851
+        },
+        {
+          "name": "Previous_Academic_Standing_With Failed Courses",
+          "importance": 0.009091
+        },
+        {
+          "name": "Course/Program_Enrolled_BSISM",
+          "importance": 0.007472
+        },
+        {
+          "name": "Total_Units_Taken",
+          "importance": 0.006422
+        },
+        {
+          "name": "Year_Level",
+          "importance": 0.003248
+        },
+        {
+          "name": "Enrollment_History_Enrollment #1",
+          "importance": 0.002368
+        },
+        {
+          "name": "Previous_Academic_Standing_New/No Previous Record",
+          "importance": 0.002095
+        },
+        {
+          "name": "Course/Program_Enrolled_BS CRIM",
+          "importance": 0.002088
+        },
+        {
+          "name": "Enrollment_History_Enrollment #2",
+          "importance": 0.000963
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-MM",
+          "importance": 0.000688
+        },
+        {
+          "name": "Previous_Academic_Standing_With Dropped Courses",
+          "importance": 0.000612
+        },
+        {
+          "name": "Course/Program_Enrolled_GEN  MID",
+          "importance": 0.000573
+        },
+        {
+          "name": "Course/Program_Enrolled_BSOA",
+          "importance": 0.0005
+        },
+        {
+          "name": "Enrollment_History_Enrollment #3",
+          "importance": 0.000492
+        },
+        {
+          "name": "Enrollment_History_Enrollment #5",
+          "importance": 0.000458
+        },
+        {
+          "name": "Enrollment_History_Enrollment #7",
+          "importance": 0.000404
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-HRM",
+          "importance": 0.000354
+        },
+        {
+          "name": "Course/Program_Enrolled_BSCS",
+          "importance": 0.000253
+        },
+        {
+          "name": "Enrollment_History_Enrollment #6",
+          "importance": 0.000243
+        },
+        {
+          "name": "Course/Program_Enrolled_BEED",
+          "importance": 0.000236
+        },
+        {
+          "name": "Course/Program_Enrolled_BSM",
+          "importance": 0.000235
+        },
+        {
+          "name": "Enrollment_History_Enrollment #4",
+          "importance": 0.000228
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-ENGL",
+          "importance": 0.000207
+        },
+        {
+          "name": "Enrollment_History_Enrollment #9",
+          "importance": 0.00015
+        },
+        {
+          "name": "Enrollment_History_Enrollment #8",
+          "importance": 0.000145
+        },
+        {
+          "name": "Course/Program_Enrolled_AB ENGLISH",
+          "importance": 0.000132
+        },
+        {
+          "name": "Course/Program_Enrolled_GRADE 11",
+          "importance": 0.000121
+        },
+        {
+          "name": "Course/Program_Enrolled_AB COMM",
+          "importance": 0.00012
+        },
+        {
+          "name": "Course/Program_Enrolled_GRADE 12",
+          "importance": 0.000112
+        },
+        {
+          "name": "Enrollment_History_Enrollment #11",
+          "importance": 8.2e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-SOCSTUD",
+          "importance": 8.1e-05
+        },
+        {
+          "name": "Enrollment_History_Enrollment #10",
+          "importance": 7.2e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_AB POLSCI",
+          "importance": 6.5e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-MATH",
+          "importance": 5.6e-05
+        },
+        {
+          "name": "Enrollment_History_Enrollment #12",
+          "importance": 5.6e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-FIL",
+          "importance": 5.4e-05
+        },
+        {
+          "name": "Enrollment_History_Enrollment #13",
+          "importance": 4.3e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-HRDM",
+          "importance": 4.1e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-MAPEH",
+          "importance": 2.3e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-FM",
+          "importance": 1.8e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_DPE",
+          "importance": 1.2e-05
+        },
+        {
+          "name": "Enrollment_History_Enrollment #14",
+          "importance": 1e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_ACT",
+          "importance": 1e-05
+        },
+        {
+          "name": "Enrollment_History_Enrollment #15",
+          "importance": 0.0
+        }
+      ]
+    },
+    "logistic_regression": {
+      "label": "Logistic Regression",
+      "features": [
+        {
+          "name": "Number_of_Dropped_Courses",
+          "importance": 0.24566
+        },
+        {
+          "name": "Number_of_Failed_Courses",
+          "importance": 0.244214
+        },
+        {
+          "name": "GWA",
+          "importance": 0.238092
+        },
+        {
+          "name": "Course/Program_Enrolled_GRADE 11",
+          "importance": 0.018281
+        },
+        {
+          "name": "Previous_Academic_Standing_Good Standing",
+          "importance": 0.017629
+        },
+        {
+          "name": "Previous_Academic_Standing_With Failed Courses",
+          "importance": 0.017268
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-MATH",
+          "importance": 0.016917
+        },
+        {
+          "name": "Enrollment_History_Enrollment #13",
+          "importance": 0.014821
+        },
+        {
+          "name": "Enrollment_History_Enrollment #12",
+          "importance": 0.014468
+        },
+        {
+          "name": "Course/Program_Enrolled_GEN  MID",
+          "importance": 0.01241
+        },
+        {
+          "name": "Previous_Academic_Standing_With Dropped Courses",
+          "importance": 0.012209
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-HRDM",
+          "importance": 0.012028
+        },
+        {
+          "name": "Course/Program_Enrolled_BSOA",
+          "importance": 0.011563
+        },
+        {
+          "name": "Enrollment_History_Enrollment #14",
+          "importance": 0.01055
+        },
+        {
+          "name": "Course/Program_Enrolled_AB POLSCI",
+          "importance": 0.010119
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-MAPEH",
+          "importance": 0.009242
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-ENGL",
+          "importance": 0.007982
+        },
+        {
+          "name": "Course/Program_Enrolled_BEED",
+          "importance": 0.007643
+        },
+        {
+          "name": "Enrollment_History_Enrollment #7",
+          "importance": 0.00698
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-SOCSTUD",
+          "importance": 0.006237
+        },
+        {
+          "name": "Enrollment_History_Enrollment #1",
+          "importance": 0.005721
+        },
+        {
+          "name": "Previous_Academic_Standing_New/No Previous Record",
+          "importance": 0.005721
+        },
+        {
+          "name": "Enrollment_History_Enrollment #2",
+          "importance": 0.004845
+        },
+        {
+          "name": "Course/Program_Enrolled_AB COMM",
+          "importance": 0.004812
+        },
+        {
+          "name": "Enrollment_History_Enrollment #4",
+          "importance": 0.004259
+        },
+        {
+          "name": "Enrollment_History_Enrollment #10",
+          "importance": 0.003742
+        },
+        {
+          "name": "Course/Program_Enrolled_BS CRIM",
+          "importance": 0.003672
+        },
+        {
+          "name": "Year_Level",
+          "importance": 0.00332
+        },
+        {
+          "name": "Course/Program_Enrolled_DPE",
+          "importance": 0.003255
+        },
+        {
+          "name": "Enrollment_History_Enrollment #5",
+          "importance": 0.00323
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-FM",
+          "importance": 0.003038
+        },
+        {
+          "name": "Course/Program_Enrolled_BSM",
+          "importance": 0.002861
+        },
+        {
+          "name": "Enrollment_History_Enrollment #8",
+          "importance": 0.002837
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-FIL",
+          "importance": 0.002812
+        },
+        {
+          "name": "Enrollment_History_Enrollment #6",
+          "importance": 0.002771
+        },
+        {
+          "name": "Course/Program_Enrolled_BSISM",
+          "importance": 0.001622
+        },
+        {
+          "name": "Enrollment_History_Enrollment #11",
+          "importance": 0.001173
+        },
+        {
+          "name": "Enrollment_History_Enrollment #3",
+          "importance": 0.001161
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-HRM",
+          "importance": 0.001115
+        },
+        {
+          "name": "Enrollment_History_Enrollment #9",
+          "importance": 0.000934
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-MM",
+          "importance": 0.000829
+        },
+        {
+          "name": "Course/Program_Enrolled_AB ENGLISH",
+          "importance": 0.000791
+        },
+        {
+          "name": "Total_Units_Taken",
+          "importance": 0.000617
+        },
+        {
+          "name": "Course/Program_Enrolled_BSCS",
+          "importance": 0.000355
+        },
+        {
+          "name": "Course/Program_Enrolled_GRADE 12",
+          "importance": 0.000183
+        },
+        {
+          "name": "Course/Program_Enrolled_ACT",
+          "importance": 7e-06
+        },
+        {
+          "name": "Enrollment_History_Enrollment #15",
+          "importance": 2e-06
+        }
+      ]
+    },
+    "naive_bayes": {
+      "label": "Naive Bayes",
+      "features": [
+        {
+          "name": "Number_of_Failed_Courses",
+          "importance": 0.247047
+        },
+        {
+          "name": "GWA",
+          "importance": 0.187182
+        },
+        {
+          "name": "Number_of_Dropped_Courses",
+          "importance": 0.153366
+        },
+        {
+          "name": "Total_Units_Taken",
+          "importance": 0.138101
+        },
+        {
+          "name": "Year_Level",
+          "importance": 0.050247
+        },
+        {
+          "name": "Previous_Academic_Standing_Good Standing",
+          "importance": 0.047637
+        },
+        {
+          "name": "Previous_Academic_Standing_With Failed Courses",
+          "importance": 0.025137
+        },
+        {
+          "name": "Course/Program_Enrolled_BSISM",
+          "importance": 0.024627
+        },
+        {
+          "name": "Enrollment_History_Enrollment #1",
+          "importance": 0.020456
+        },
+        {
+          "name": "Previous_Academic_Standing_New/No Previous Record",
+          "importance": 0.020456
+        },
+        {
+          "name": "Course/Program_Enrolled_BS CRIM",
+          "importance": 0.011523
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-MM",
+          "importance": 0.009007
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-HRM",
+          "importance": 0.006105
+        },
+        {
+          "name": "Course/Program_Enrolled_BSOA",
+          "importance": 0.005945
+        },
+        {
+          "name": "Enrollment_History_Enrollment #7",
+          "importance": 0.005124
+        },
+        {
+          "name": "Enrollment_History_Enrollment #6",
+          "importance": 0.005097
+        },
+        {
+          "name": "Enrollment_History_Enrollment #5",
+          "importance": 0.00446
+        },
+        {
+          "name": "Enrollment_History_Enrollment #4",
+          "importance": 0.003937
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-ENGL",
+          "importance": 0.003576
+        },
+        {
+          "name": "Course/Program_Enrolled_AB ENGLISH",
+          "importance": 0.003198
+        },
+        {
+          "name": "Enrollment_History_Enrollment #8",
+          "importance": 0.002926
+        },
+        {
+          "name": "Course/Program_Enrolled_BSM",
+          "importance": 0.002916
+        },
+        {
+          "name": "Enrollment_History_Enrollment #2",
+          "importance": 0.0027
+        },
+        {
+          "name": "Course/Program_Enrolled_GEN  MID",
+          "importance": 0.002442
+        },
+        {
+          "name": "Previous_Academic_Standing_With Dropped Courses",
+          "importance": 0.002044
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-SOCSTUD",
+          "importance": 0.001973
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-FIL",
+          "importance": 0.001937
+        },
+        {
+          "name": "Course/Program_Enrolled_BSCS",
+          "importance": 0.00192
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-MATH",
+          "importance": 0.001702
+        },
+        {
+          "name": "Enrollment_History_Enrollment #3",
+          "importance": 0.00147
+        },
+        {
+          "name": "Course/Program_Enrolled_AB POLSCI",
+          "importance": 0.001443
+        },
+        {
+          "name": "Course/Program_Enrolled_GRADE 12",
+          "importance": 0.00094
+        },
+        {
+          "name": "Course/Program_Enrolled_AB COMM",
+          "importance": 0.00093
+        },
+        {
+          "name": "Course/Program_Enrolled_BEED",
+          "importance": 0.000677
+        },
+        {
+          "name": "Enrollment_History_Enrollment #9",
+          "importance": 0.000471
+        },
+        {
+          "name": "Enrollment_History_Enrollment #10",
+          "importance": 0.000263
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-HRDM",
+          "importance": 0.000217
+        },
+        {
+          "name": "Course/Program_Enrolled_GRADE 11",
+          "importance": 0.000211
+        },
+        {
+          "name": "Enrollment_History_Enrollment #11",
+          "importance": 0.000126
+        },
+        {
+          "name": "Course/Program_Enrolled_DPE",
+          "importance": 0.000117
+        },
+        {
+          "name": "Enrollment_History_Enrollment #13",
+          "importance": 0.000105
+        },
+        {
+          "name": "Course/Program_Enrolled_BSBA-FM",
+          "importance": 8.8e-05
+        },
+        {
+          "name": "Enrollment_History_Enrollment #12",
+          "importance": 8.7e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_ACT",
+          "importance": 3.8e-05
+        },
+        {
+          "name": "Course/Program_Enrolled_BSED-MAPEH",
+          "importance": 2.4e-05
+        },
+        {
+          "name": "Enrollment_History_Enrollment #14",
+          "importance": 3e-06
+        },
+        {
+          "name": "Enrollment_History_Enrollment #15",
+          "importance": 3e-06
+        }
+      ]
+    }
+  }
+}

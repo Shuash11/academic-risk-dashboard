@@ -32,24 +32,3 @@ export const AppConfig = {
   maxRows: 5000,
   reportTitle: 'Academic Risk Report',
 }
-
-export const SAMPLE_HEADERS = [
-  'Student ID',
-  'Academic Year',
-  'Semester',
-  'Final Grades',
-  'GWA',
-  'Number of Failed Courses',
-  'Number of Dropped Courses',
-  'Course/Program Enrolled',
-  'Year Level',
-  'Enrollment History',
-  'Total Units Taken',
-  'Previous Academic Standing',
-]
-
-export const SAMPLE_ROWS = [
-  { id: 'SAMPLE-01', synth: true, gwa: 1.5, failed: 0, dropped: 0, units: 24, year: 2, program: 'BSCS', enrollHist: 'Enrollment #2', prevStanding: 'Good Standing' },
-  { id: 'SAMPLE-02', synth: true, gwa: 2.75, failed: 3, dropped: 1, units: 21, year: 3, program: 'BS CRIM', enrollHist: 'Enrollment #5', prevStanding: 'With Failed Courses' },
-  { id: 'SAMPLE-03', synth: true, gwa: NaN, failed: 0, dropped: 0, units: 25, year: 1, program: '', enrollHist: '', prevStanding: '' },
-]
