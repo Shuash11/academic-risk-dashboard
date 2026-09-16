@@ -14,6 +14,7 @@ import { AcademicProfile } from './pages/AcademicProfile.jsx'
 import { ModelEvaluation } from './pages/ModelEvaluation.jsx'
 import { FeatureImportance } from './pages/FeatureImportance.jsx'
 import { InterventionFramework } from './pages/InterventionFramework.jsx'
+import { Performance } from './pages/Performance.jsx'
 import { Controls } from './components/Controls.jsx'
 import { StatusLog } from './components/StatusLog.jsx'
 import { Summary } from './components/Summary.jsx'
@@ -249,6 +250,7 @@ export default function App() {
           </div>
         </main>
       )}
+      {activeTab === 'performance' && <Performance />}
       {activeTab === 'about' && <About />}
       {activeTab === 'compare' && <Compare />}
       {activeTab === 'profile' && <AcademicProfile rows={rows} />}

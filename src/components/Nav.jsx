@@ -5,6 +5,7 @@ export function Nav({ active, onChange }) {
     { id: 'evaluation', label: 'Evaluation' },
     { id: 'predictors', label: 'Predictors' },
     { id: 'intervention', label: 'Intervention' },
+    { id: 'performance', label: 'Performance' },
     { id: 'about', label: 'About' },
     { id: 'compare', label: 'Compare' },
   ]
