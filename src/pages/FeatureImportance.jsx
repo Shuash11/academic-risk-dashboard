@@ -10,7 +10,7 @@ const MODEL_COLORS = {
 const MODEL_IDS = ['decision_tree', 'random_forest', 'logistic_regression', 'naive_bayes']
 
 function ImportanceBarChart({ features, color, topN = 15 }) {
-  const top = features.slice(0, topN)
+  const top = features.filter((f) => f.importance > 0).slice(0, topN)
   const maxImp = top.length > 0 ? top[0].importance : 1
 
   const ref = (el) => {
@@ -65,46 +65,39 @@ function ImportanceBarChart({ features, color, topN = 15 }) {
 }
 
 function TopFeaturesSummary({ models }) {
-  const topPerModel = useMemo(() => {
-    return models.map(([id, data]) => {
-      const top3 = data.features.slice(0, 3)
-      return { id, label: data.label, top3 }
+  const consensus = useMemo(() => {
+    const featureMap = {}
+    models.forEach(([id, data]) => {
+      data.features.forEach((f, idx) => {
+        if (!featureMap[f.name]) featureMap[f.name] = { name: f.name, appearsIn: 0, totalImportance: 0, bestRank: Infinity, models: [] }
+        featureMap[f.name].appearsIn++
+        featureMap[f.name].totalImportance += f.importance
+        if (f.importance > 0) {
+          featureMap[f.name].bestRank = Math.min(featureMap[f.name].bestRank, idx + 1)
+          featureMap[f.name].models.push({ id, importance: f.importance, rank: idx + 1 })
+        }
+      })
     })
+
+    const n = models.length
+    return Object.values(featureMap)
+      .map((f) => ({ ...f, avgImportance: f.totalImportance / n }))
+      .filter((f) => f.avgImportance > 0)
+      .sort((a, b) => b.avgImportance - a.avgImportance)
+      .slice(0, 8)
   }, [models])
-
-  const allTopNames = new Set()
-  topPerModel.forEach(({ top3 }) => top3.forEach((f) => allTopNames.add(f.name)))
-
-  const featureRank = {}
-  allTopNames.forEach((name) => {
-    featureRank[name] = { name, totalImportance: 0, appearsIn: 0, ranks: [] }
-  })
-
-  topPerModel.forEach(({ id, top3 }) => {
-    top3.forEach((f, idx) => {
-      if (featureRank[f.name]) {
-        featureRank[f.name].totalImportance += f.importance
-        featureRank[f.name].appearsIn++
-        featureRank[f.name].ranks.push({ model: id, rank: idx + 1 })
-      }
-    })
-  })
-
-  const consensus = Object.values(featureRank)
-    .sort((a, b) => b.totalImportance - a.totalImportance)
-    .slice(0, 5)
 
   return (
     <div className="rounded-2xl bg-slate-900 text-white p-6">
       <h3 className="font-bold">Key predictors across all models</h3>
-      <p className="mt-1 text-xs text-slate-400">Features that consistently rank highest across all four algorithms.</p>
+      <p className="mt-1 text-xs text-slate-400">Ranked by average importance across all four algorithms.</p>
       <ol className="mt-4 space-y-3">
         {consensus.map((f, i) => (
           <li key={f.name} className="flex items-start gap-3">
             <span className="shrink-0 w-6 h-6 rounded-full bg-white/15 text-white flex items-center justify-center text-xs font-bold">{i + 1}</span>
             <div className="min-w-0">
               <p className="text-sm font-semibold">{f.name}</p>
-              <p className="text-xs text-slate-400">Appears in top 3 of {f.appearsIn}/4 models · cumulative importance {(f.totalImportance * 100).toFixed(1)}%</p>
+              <p className="text-xs text-slate-400">Avg importance {(f.avgImportance * 100).toFixed(1)}% · present in {f.appearsIn}/{4} models</p>
             </div>
           </li>
         ))}
@@ -189,7 +182,7 @@ export function FeatureImportance() {
               <p className="text-sm font-bold text-slate-900">{m.label}</p>
             </div>
             <div className="space-y-1.5">
-              {m.features.slice(0, 8).map((f) => (
+              {m.features.filter((f) => f.importance > 0).slice(0, 10).map((f) => (
                 <div key={f.name} className="flex items-center gap-2">
                   <span className="text-xs text-slate-600 w-44 truncate" title={f.name}>{f.name}</span>
                   <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
