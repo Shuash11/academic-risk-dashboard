@@ -27,9 +27,17 @@
   footer { border-top: 1px solid #000 !important; }
   .screen-only { display: none !important; }
   .print-only { display: block !important; }
+  .flow-travel-dot { display: none !important; }
   .print-only table { page-break-inside: auto; }
   .print-only tr { page-break-inside: avoid; page-break-after: auto; }
   .print-only thead { display: table-header-group; }
+}
+
+/* training flow — light pauses 3s on each box (driven from PipelineFlow.jsx) */
+.flow-box { transition: border-color 0.35s ease, box-shadow 0.35s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-travel-dot { display: none; }
 }
 
 .status-log { scrollbar-width: thin; scrollbar-color: #cbd5e1 #f8fafc; }

@@ -8,6 +8,7 @@ export function Nav({ active, onChange }) {
     { id: 'performance', label: 'Performance' },
     { id: 'about', label: 'About' },
     { id: 'compare', label: 'Compare' },
+    { id: 'training', label: 'Training' },
   ]
   return (
     <nav className="bg-white border-b border-slate-200">

@@ -15,6 +15,7 @@ import { ModelEvaluation } from './pages/ModelEvaluation.jsx'
 import { FeatureImportance } from './pages/FeatureImportance.jsx'
 import { InterventionFramework } from './pages/InterventionFramework.jsx'
 import { Performance } from './pages/Performance.jsx'
+import { Training } from './pages/Training.jsx'
 import { Controls } from './components/Controls.jsx'
 import { StatusLog } from './components/StatusLog.jsx'
 import { Summary } from './components/Summary.jsx'
@@ -257,6 +258,7 @@ export default function App() {
       {activeTab === 'evaluation' && <ModelEvaluation />}
       {activeTab === 'predictors' && <FeatureImportance />}
       {activeTab === 'intervention' && <InterventionFramework />}
+      {activeTab === 'training' && <Training />}
       <footer className="border-t border-slate-200 bg-white mt-8">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
           <p className="font-semibold text-slate-900">Academic Risk Dashboard</p>
