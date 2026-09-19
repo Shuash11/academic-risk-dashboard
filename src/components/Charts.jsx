@@ -1,15 +1,19 @@
 import { useEffect, useRef } from 'react'
 
 function setupHiDpi(canvas) {
-  const dpr = window.devicePixelRatio || 1
-  const w = canvas.width
-  const h = canvas.height
-  canvas.width = w * dpr
-  canvas.height = h * dpr
-  canvas.style.aspectRatio = w + ' / ' + h
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const cssW = canvas.clientWidth || 640
+  const cssH = Math.round((cssW * 360) / 640)
+  const W = Math.round(cssW * dpr)
+  const H = Math.round(cssH * dpr)
+  if (canvas.width !== W || canvas.height !== H) {
+    canvas.width = W
+    canvas.height = H
+  }
+  canvas.style.aspectRatio = '640 / 360'
   const ctx = canvas.getContext('2d')
-  ctx.scale(dpr, dpr)
-  return { ctx, w, h }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  return { ctx, w: cssW, h: cssH }
 }
 
 function empty(canvas, message) {
@@ -25,7 +29,11 @@ function bandBar(canvas, dist, modelLabel) {
   const s = setupHiDpi(canvas)
   const ctx = s.ctx, W = s.w, H = s.h
   ctx.clearRect(0, 0, W, H)
-  const padL = 44, padB = 48, padT = 30, padR = 16
+  const padL = 56, padB = 48, padT = 36, padR = 16
+  const fsVal = Math.max(11, Math.min(16, Math.round(W / 36)))
+  const fsAxis = Math.max(10, Math.min(14, Math.round(W / 44)))
+  const fsTitle = Math.max(12, Math.min(16, Math.round(W / 45)))
+  const fmt = (v) => v.toLocaleString('en-US')
   const max = Math.max(1, dist.Low, dist.Medium, dist.High)
   const cats = [
     { k: 'Low', c: '#059669' },
@@ -34,7 +42,7 @@ function bandBar(canvas, dist, modelLabel) {
   ]
   const slot = (W - padL - padR) / cats.length
   ctx.fillStyle = '#334155'
-  ctx.font = '12px Inter, system-ui, sans-serif'
+  ctx.font = fsTitle + 'px Inter, system-ui, sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('Band counts — ' + modelLabel, W / 2, 16)
   cats.forEach((cat, i) => {
@@ -47,17 +55,18 @@ function bandBar(canvas, dist, modelLabel) {
     ctx.beginPath()
     ctx.roundRect(x, y, bw, bh, 6)
     ctx.fill()
-    ctx.fillStyle = '#0f172a'
-    ctx.font = 'bold 13px Inter, system-ui, sans-serif'
-    ctx.fillText(String(v), x + bw / 2, y - 6)
+    const inside = bh > 26
+    ctx.fillStyle = inside ? '#ffffff' : '#0f172a'
+    ctx.font = 'bold ' + fsVal + 'px Inter, system-ui, sans-serif'
+    ctx.fillText(fmt(v), x + bw / 2, inside ? y + 18 : y - 6)
     ctx.fillStyle = '#475569'
-    ctx.font = '12px Inter, system-ui, sans-serif'
+    ctx.font = fsAxis + 'px Inter, system-ui, sans-serif'
     ctx.fillText(cat.k, x + bw / 2, H - padB + 18)
   })
   ctx.strokeStyle = '#e2e8f0'
   ctx.fillStyle = '#64748b'
   ctx.textAlign = 'right'
-  ctx.font = '11px Inter, sans-serif'
+  ctx.font = fsAxis + 'px Inter, sans-serif'
   for (let g = 0; g <= 4; g++) {
     const gv = Math.round(max * g / 4)
     const gy = H - padB - ((H - padT - padB) * g) / 4
@@ -65,7 +74,7 @@ function bandBar(canvas, dist, modelLabel) {
     ctx.moveTo(padL, gy)
     ctx.lineTo(W - padR, gy)
     ctx.stroke()
-    ctx.fillText(String(gv), padL - 6, gy + 4)
+    if (W >= 360) ctx.fillText(fmt(gv), padL - 6, gy + 4)
   }
 }
 
@@ -73,7 +82,11 @@ function histogram(canvas, probas, modelLabel) {
   const s = setupHiDpi(canvas)
   const ctx = s.ctx, W = s.w, H = s.h
   ctx.clearRect(0, 0, W, H)
-  const padL = 44, padB = 48, padT = 30, padR = 16
+  const padL = 56, padB = 48, padT = 36, padR = 16
+  const fsVal = Math.max(11, Math.min(16, Math.round(W / 36)))
+  const fsAxis = Math.max(10, Math.min(14, Math.round(W / 44)))
+  const fsTitle = Math.max(12, Math.min(16, Math.round(W / 45)))
+  const fmt = (v) => v.toLocaleString('en-US')
   const bins = new Array(10).fill(0)
   probas.forEach((p) => {
     const b = Math.min(9, Math.floor(p * 10))
@@ -82,7 +95,7 @@ function histogram(canvas, probas, modelLabel) {
   let max = 1
   for (let i = 0; i < 10; i++) max = Math.max(max, bins[i])
   ctx.fillStyle = '#334155'
-  ctx.font = '12px Inter, system-ui, sans-serif'
+  ctx.font = fsTitle + 'px Inter, system-ui, sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('P(at-risk) — ' + modelLabel, W / 2, 16)
   const slot = (W - padL - padR) / 10
@@ -95,17 +108,18 @@ function histogram(canvas, probas, modelLabel) {
     ctx.beginPath()
     ctx.roundRect(x, y, bw, bh, 4)
     ctx.fill()
-    ctx.fillStyle = '#0f172a'
-    ctx.font = 'bold 11px Inter, sans-serif'
-    if (bins[k] > 0) ctx.fillText(String(bins[k]), x + bw / 2, y - 5)
+    const inside = bh > 26
+    ctx.fillStyle = inside ? '#ffffff' : '#0f172a'
+    ctx.font = 'bold ' + fsVal + 'px Inter, sans-serif'
+    if (bins[k] > 0) ctx.fillText(fmt(bins[k]), x + bw / 2, inside ? y + 18 : y - 6)
     ctx.fillStyle = '#64748b'
-    ctx.font = '10px Inter, sans-serif'
+    ctx.font = fsAxis + 'px Inter, sans-serif'
     ctx.fillText((k / 10).toFixed(1), x + bw / 2, H - padB + 14)
   }
   ctx.strokeStyle = '#e2e8f0'
   ctx.fillStyle = '#64748b'
   ctx.textAlign = 'right'
-  ctx.font = '11px Inter, sans-serif'
+  ctx.font = fsAxis + 'px Inter, sans-serif'
   for (let g = 0; g <= 4; g++) {
     const gv = Math.round(max * g / 4)
     const gy = H - padB - ((H - padT - padB) * g) / 4
@@ -113,7 +127,7 @@ function histogram(canvas, probas, modelLabel) {
     ctx.moveTo(padL, gy)
     ctx.lineTo(W - padR, gy)
     ctx.stroke()
-    ctx.fillText(String(gv), padL - 6, gy + 4)
+    if (W >= 360) ctx.fillText(fmt(gv), padL - 6, gy + 4)
   }
 }
 
@@ -125,20 +139,27 @@ export function Charts({ results, chartModel }) {
     const bandC = bandRef.current
     const histC = histRef.current
     if (!bandC || !histC) return
-    const m = chartModel
-    const res = m ? results[m.id] : null
-    if (!res || !res.length) {
-      empty(bandC, 'No results yet — run predictions.')
-      empty(histC, 'No results yet — run predictions.')
-      return
+    const draw = () => {
+      const m = chartModel
+      const res = m ? results[m.id] : null
+      if (!res || !res.length) {
+        empty(bandC, 'No results yet — run predictions.')
+        empty(histC, 'No results yet — run predictions.')
+        return
+      }
+      const dist = { Low: 0, Medium: 0, High: 0 }
+      const probas = res.map((r) => {
+        dist[r.band.name]++
+        return r.proba
+      })
+      bandBar(bandC, dist, m.label)
+      histogram(histC, probas, m.label)
     }
-    const dist = { Low: 0, Medium: 0, High: 0 }
-    const probas = res.map((r) => {
-      dist[r.band.name]++
-      return r.proba
-    })
-    bandBar(bandC, dist, m.label)
-    histogram(histC, probas, m.label)
+    draw()
+    const ro = new ResizeObserver(draw)
+    ro.observe(bandC)
+    ro.observe(histC)
+    return () => ro.disconnect()
   }, [results, chartModel])
 
   return (
