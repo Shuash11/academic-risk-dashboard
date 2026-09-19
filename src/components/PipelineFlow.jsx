@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 const WIRE = 'bg-[#4b5563]/70'
 
@@ -28,30 +28,37 @@ const STEPS = [
   },
   { n: 5, title: 'Processing', detail: [{ t: 'processing.py' }, { t: 'States what each algorithm needs.' }] },
   { n: 6, title: 'Split dates', detail: [{ t: 'splitter.py' }, { t: 'Separates dates 2019–2023 (training) & 2024–2025 (final check).' }] },
-  { n: 7, title: '5-fold CV · stratified slices', detail: [{ t: 'Slice the table rows 5 times (fair slices).' }] },
+  { n: 7, title: '5-fold CV · student-grouped folds', detail: [{ t: 'No student appears in two folds.' }, { t: 'Identical folds for every model.', i: true }] },
 
 
   { n: 8, title: 'SMOTE', detail: [
     { t: 'Risk — synthetic rows invented from the sliced table.' },
     { t: 'Non-risk — original rows from the sliced table.' },
+    { t: 'Both conditions run: no-SMOTE vs SMOTE (final holdout uses no-SMOTE).', i: true },
   ] },
 
-  { n: 9, title: 'Score every model', detail: [
+  { n: 9, title: 'GridSearchCV tuning', detail: [
+    { t: 'Tuned on dev folds only (F1 At-Risk).' },
+    { t: 'DT max_depth=10 · RF max_depth=10, 200 trees.' },
+    { t: 'LR C=1.0 · NB var_smoothing=1e-06.' },
+  ] },
+
+  { n: 10, title: 'Score every model', detail: [
     { t: 'accuracy — overall correctness' },
     { t: 'precision — share of alerts that were right' },
     { t: 'recall — share of at-risk students found' },
     { t: 'F1 — balance of correct alerts' },
     { t: 'ROC-AUC — ability to tell groups apart' },
   ] },
-  { n: 10, title: 'Average the 5 scores', detail: [{ t: 'One trustworthy result per model' }, { t: '(saved for the Wilcoxon test).', i: true }] },
-  { n: 11, title: 'Compare the models', detail: [{ t: 'Same folds for every model.', i: true }, { t: 'Rank them on identical folds.' }] },
-  { n: 12, title: 'Wilcoxon test', detail: [{ t: 'Holm correction, α = 0.05' }, { t: 'Checks if the differences are real — or just luck.' }] },
-  { n: 13, title: 'Select the model', detail: [{ t: 'No retrain.', i: true }, { t: 'Pick the winner based on evidence.' }] },
-  { n: 14, title: 'Final evaluation', detail: [{ t: 'On the holdout data (2024–2025).', i: true }, { t: 'Final test on students never seen in training.' }] },
-  { n: 15, title: 'Report results', detail: [{ t: 'Recorded for the thesis.', i: true }] },
+  { n: 11, title: 'Average the 5 scores', detail: [{ t: 'One trustworthy result per model' }, { t: '(saved for the Wilcoxon test).', i: true }] },
+  { n: 12, title: 'Compare the models', detail: [{ t: 'Same folds for every model.', i: true }, { t: 'Rank them on identical folds.' }] },
+  { n: 13, title: 'Wilcoxon test', detail: [{ t: 'Holm correction, α = 0.05' }, { t: 'Checks if the differences are real — or just luck.' }] },
+  { n: 14, title: 'Select the model', detail: [{ t: 'No retrain.', i: true }, { t: 'Pick the winner based on evidence.' }] },
+  { n: 15, title: 'Final evaluation', detail: [{ t: 'On the holdout data (2024–2025).', i: true }, { t: 'Final test on students never seen in training.' }] },
+  { n: 16, title: 'Report results', detail: [{ t: 'Recorded for the thesis.', i: true }] },
 ]
 
-const MODELS = ['Decision Tree', 'Random Forest', 'Logistic Regression', 'GaussianNB']
+const MODELS = ['Decision Tree', 'Random Forest', 'Logistic Regression', 'GaussianNB', 'Dummy (Stratified)']
 
 const PHASE3 = { label: '3 · From models to report' }
 
@@ -65,7 +72,7 @@ function FlowNode({ step, boxRef }) {
   return (
     <div ref={boxRef} className={`flow-box relative z-10 w-full max-w-[300px] mx-auto rounded-xl border px-4 py-3 text-center ${t.box}`}>
       <span className={`absolute top-2 left-2 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center ${t.badge}`}>{step.n}</span>
-      <h3 className={`font-serif font-bold uppercase tracking-wide text-[0.85rem] leading-snug ${t.title}`}>{step.title}</h3>
+      <h3 className={`font-serif font-bold uppercase tracking-wide text-[0.85rem] leading-snug px-6 ${t.title}`}>{step.title}</h3>
       <div className="mt-1.5 space-y-0.5">
         {step.detail.map((d, idx) => (
           <p key={idx} className={`text-[0.72rem] leading-relaxed ${d.i ? 'italic text-slate-500' : 'text-slate-400'}`}>{d.t}</p>
@@ -109,7 +116,7 @@ function ChipRow({ chip, rowRef }) {
 function FoldLoop({ steps, reg, bracketRef }) {
   return (
     <div className="relative w-full max-w-[460px] mx-auto">
-        <div ref={bracketRef} className="absolute left-6 right-1/2 top-0 bottom-0 border-l-2 border-t-2 border-b-2 rounded-l-2xl border-[#4b5563]/70 hidden sm:block" aria-hidden="true" />
+        <div ref={bracketRef} className="absolute left-2 sm:left-6 right-1/2 top-0 bottom-0 border-l-2 border-t-2 border-b-2 rounded-l-2xl border-[#4b5563]/70" aria-hidden="true" />
       {steps.map((s, idx) => (
           <Fragment key={s.n}>
             {idx > 0 && <Wire />}
@@ -122,8 +129,8 @@ function FoldLoop({ steps, reg, bracketRef }) {
 
 function ModelBox({ name, boxRef }) {
   return (
-    <div ref={boxRef} className="flow-box relative z-10 rounded-xl border bg-[#151a23] border-[#333d49] px-1.5 sm:px-2 py-3 text-center">
-      <h3 className="font-serif font-bold tracking-wide text-[0.8rem] sm:text-[0.85rem] leading-snug text-[#e8edf3] break-words">{name}</h3>
+    <div ref={boxRef} className="flow-box relative z-10 min-w-0 rounded-xl border bg-[#151a23] border-[#333d49] px-1 sm:px-2 py-2 sm:py-3 text-center">
+      <h3 className="font-serif font-bold tracking-wide text-[0.6rem] sm:text-[0.85rem] leading-snug text-[#e8edf3] break-words">{name}</h3>
     </div>
   )
 }
@@ -131,12 +138,12 @@ function ModelBox({ name, boxRef }) {
 function WireRow({ busAt }) {
   return (
     <div className="relative">
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-3">
         {MODELS.map((m, i) => (
           <div key={i} className="flex justify-center"><div className={`w-0.5 h-6 ${WIRE}`} /></div>
         ))}
       </div>
-      <div className={`absolute ${busAt === 'top' ? 'top-0' : 'bottom-0'} h-0.5 ${WIRE}`} style={{ left: 'calc(12.5% - 4.5px)', right: 'calc(12.5% - 4.5px)' }} aria-hidden="true" />
+      <div className={`absolute ${busAt === 'top' ? 'top-0' : 'bottom-0'} h-0.5 ${WIRE}`} style={{ left: 'calc(10% - 4.5px)', right: 'calc(10% - 4.5px)' }} aria-hidden="true" />
     </div>
   )
 }
@@ -145,8 +152,8 @@ function ModelBranch({ models, reg }) {
   return (
     <div className="relative z-10 w-full max-w-[720px] mx-auto">
       <WireRow busAt="top" />
-      <div className="grid grid-cols-4 gap-3">
-        {models.map((name) => <ModelBox key={name} name={name} boxRef={reg(8)} />)}
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-3">
+        {models.map((name) => <ModelBox key={name} name={name} boxRef={reg(9)} />)}
       </div>
       <WireRow busAt="bottom" />
       <Wire h="h-5" />
@@ -155,9 +162,13 @@ function ModelBranch({ models, reg }) {
 }
 
 export function PipelineFlow() {
+  const [playing, setPlaying] = useState(false)
+  const [speed, setSpeed] = useState(1)
+  const reduceMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const pre = STEPS.slice(0, 6)
   const loopSteps = STEPS.slice(6, 8)
-  const post = STEPS.slice(8)
+  const tuningStep = STEPS[8]
+  const post = STEPS.slice(9)
   const containerRef = useRef(null)
   const dotRef = useRef(null)
   const phase3Ref = useRef(null)
@@ -170,13 +181,14 @@ export function PipelineFlow() {
   }
 
   useEffect(() => {
+    if (!playing) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const dot = dotRef.current
     const container = containerRef.current
     if (!dot || !container) return
-    const GLOW_MS = 3000
-    const PX_PER_SEC = 160
-    const LOOP_PX_PER_SEC = 200
+    const GLOW_MS = 3000 / speed
+    const PX_PER_SEC = 160 * speed
+    const LOOP_PX_PER_SEC = 200 * speed
     let cancelled = false
     const rafs = []
     const timers = []
@@ -275,16 +287,26 @@ export function PipelineFlow() {
           await later(GLOW_MS)
           if (cancelled) { setGlow(step11, false); return }
         }
-        const models = live(8)
+        const tuning = live(8)
+        if (tuning.length) {
+          const p = rect(tuning[0])
+          await moveTo(p.x, p.y)
+          if (cancelled) { setGlow(step11, false); return }
+          setGlow(tuning, true)
+          await later(GLOW_MS)
+          if (cancelled) { setGlow(tuning, false); setGlow(step11, false); return }
+          setGlow(tuning, false)
+        }
+        const models = live(9)
         const chip = phase3Ref.current
         const bracket = bracketRef.current
-        const canBranch = Boolean(chip && models.length === 4)
+        const canBranch = Boolean(chip && models.length === 5)
         const canLoop = canBranch && Boolean(bracket && bracket.getBoundingClientRect().width > 0)
         if (canBranch) {
           const pc = rect(chip)
           await moveTo(pc.x, pc.y)
           if (cancelled) { setGlow(step11, false); return }
-          await later(800)
+          await later(800 / speed)
           if (cancelled) { setGlow(step11, false); return }
           const bus = { x: container.clientWidth / 2, y: rect(models[0]).top - 24 }
           await moveTo(bus.x, bus.y)
@@ -295,7 +317,7 @@ export function PipelineFlow() {
             if (d && targets[i]) { d.style.left = `${bus.x}px`; d.style.top = `${bus.y}px`; d.style.opacity = '1' }
           })
           dot.style.opacity = '0'
-          await later(350)
+          await later(350 / speed)
           if (cancelled) { setGlow(step11, false); return }
           await Promise.all(targets.map((t, i) => {
             const d = minis[i]
@@ -316,14 +338,14 @@ export function PipelineFlow() {
           }))
           minis.forEach((d) => { if (d) d.style.opacity = '0' })
           dot.style.opacity = '1'
-          await later(350)
+          await later(350 / speed)
           if (cancelled) return
         } else {
           setGlow(step11, false)
         }
         if (canLoop && round < 4) {
           dot.style.opacity = '0'
-          await later(350)
+          await later(350 / speed)
           if (cancelled) return
           const cr = container.getBoundingClientRect()
           const br = bracket.getBoundingClientRect()
@@ -333,7 +355,7 @@ export function PipelineFlow() {
           const cx = container.clientWidth / 2
           setDot(cx, botY)
           dot.style.opacity = '1'
-          await later(350)
+          await later(350 / speed)
           if (cancelled) return
           await moveTo(railX, botY, LOOP_PX_PER_SEC)
           if (cancelled) return
@@ -349,19 +371,19 @@ export function PipelineFlow() {
           }
           } else {
             dot.style.opacity = '0'
-            await later(350)
+            await later(350 / speed)
             if (cancelled) return
           }
         }
-        const tail0 = live(9)
+        const tail0 = live(10)
         if (tail0.length) {
           const p = rect(tail0[0])
           setDot(p.x, p.y)
         }
         dot.style.opacity = '1'
-        await later(450)
+        await later(450 / speed)
         if (cancelled) return
-        for (let s = 9; s <= 15; s++) {
+        for (let s = 10; s <= 16; s++) {
           if (cancelled) return
           const els = live(s)
           if (!els.length) continue
@@ -374,7 +396,7 @@ export function PipelineFlow() {
         }
         if (cancelled) return
         dot.style.opacity = '0'
-        await later(450)
+        await later(450 / speed)
         if (cancelled) return
         const first = live(0)
         if (first.length) {
@@ -382,18 +404,62 @@ export function PipelineFlow() {
           setDot(p.x, p.y)
         }
         dot.style.opacity = '1'
-        await later(450)
+        await later(450 / speed)
       }
     })()
-    return () => { cancelled = true; rafs.forEach((id) => cancelAnimationFrame(id)); timers.forEach(clearTimeout) }
-  }, [])
+    return () => {
+      cancelled = true
+      rafs.forEach((id) => cancelAnimationFrame(id))
+      timers.forEach(clearTimeout)
+      if (dotRef.current) dotRef.current.style.opacity = '0'
+      miniRefs.current.forEach((d) => { if (d) d.style.opacity = '0' })
+      Object.values(stopEls.current).forEach((els) => {
+        els.forEach((el) => { if (el) { el.style.borderColor = ''; el.style.boxShadow = '' } })
+      })
+    }
+  }, [playing, speed])
   return (
-    <div className="flow-dark rounded-2xl bg-[#0a0e14] border border-white/10 p-5 sm:p-8">
+    <>
+      <div className="mb-3 flex items-center justify-end gap-3">
+        {!reduceMotion && (
+          <>
+            <button
+              type="button"
+              onClick={() => setPlaying((p) => !p)}
+              aria-pressed={playing}
+              aria-label={playing ? 'Pause the training flow animation' : 'Play the training flow animation'}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#333d49] bg-[#151a23] px-3 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[#a9b4c1] transition hover:border-emerald-300/60 hover:text-emerald-200 hover:shadow-[0_0_16px_2px_rgba(52,211,153,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300"
+            >
+              {playing ? (
+                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
+              ) : (
+                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15c0 .8.9 1.3 1.6.9l12-7.5c.6-.4.6-1.4 0-1.8l-12-7.5c-.7-.4-1.6.1-1.6.9z" /></svg>
+              )}
+              {playing ? 'Pause' : 'Play'}
+            </button>
+            <div role="group" aria-label="Animation speed" className="inline-flex shrink-0 items-stretch overflow-hidden rounded-full border border-[#333d49] bg-[#151a23]">
+              {[1, 2, 3].map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSpeed(s)}
+                  aria-pressed={speed === s}
+                  aria-label={`${s}x animation speed`}
+                  className={`px-3 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.12em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${s > 1 ? 'border-l border-[#333d49]' : ''} ${speed === s ? 'bg-emerald-300/15 text-emerald-200' : 'text-[#a9b4c1] hover:text-emerald-200'}`}
+                >
+                  {s}x
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    <div className="flow-dark overflow-hidden rounded-2xl bg-[#0a0e14] border border-white/10 p-5 sm:p-8">
       <p className="text-center font-serif font-bold uppercase tracking-wide text-[0.85rem] text-[#c3ccd7]">Flow for training the models</p>
       <div ref={containerRef} className="relative mt-5">
         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#4b5563]/0 via-[#4b5563]/60 to-[#4b5563]/0" aria-hidden="true" />
         <div ref={dotRef} className="flow-travel-dot absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-emerald-300 shadow-[0_0_14px_5px_rgba(52,211,153,0.45)] opacity-0 transition-opacity duration-300" aria-hidden="true" />
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3, 4].map((i) => (
           <div key={i} ref={(el) => { if (el) miniRefs.current[i] = el }} className="flow-travel-dot absolute w-2.5 h-2.5 rounded-full bg-emerald-300 shadow-[0_0_14px_5px_rgba(52,211,153,0.45)] opacity-0 transition-opacity duration-300 -translate-x-1/2 -translate-y-1/2" aria-hidden="true" />
         ))}
         <div className="flex flex-col">
@@ -407,12 +473,14 @@ export function PipelineFlow() {
           <Wire h="h-5" />
           <FoldLoop steps={loopSteps} reg={reg} bracketRef={bracketRef} />
           <Wire h="h-5" />
+          <FlowNode step={tuningStep} boxRef={reg(8)} />
+          <Wire h="h-5" />
           <ChipRow chip={PHASE3} rowRef={phase3Ref} />
           <ModelBranch models={MODELS} reg={reg} />
           {post.map((s, idx) => (
             <Fragment key={s.n}>
               {idx > 0 && <Wire />}
-              <FlowNode step={s} boxRef={reg(9 + idx)} />
+              <FlowNode step={s} boxRef={reg(10 + idx)} />
             </Fragment>
           ))}
         </div>
@@ -430,5 +498,6 @@ export function PipelineFlow() {
         ))}
       </div>
     </div>
+    </>
   )
 }
