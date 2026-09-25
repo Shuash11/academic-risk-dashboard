@@ -1,7 +1,6 @@
 {
   "status": "PROVISIONAL",
-  "provisional_note": "PROVISIONAL \u2014 requires researcher/institution confirmation before thesis use. No retraining performed; no 2024-2025 holdout touched; ML-EXP-001 untouched.",
-  "graph_compat": "Categorical SimpleImputer sentinel re-declared NaN->'' for the ONNX graph only (fitted most-frequent fills unchanged, no refit). Frontend sends '' for absent categoricals.",
+  "provisional_note": "RETRAINED leakage-free pipeline (t+1 standing target, temporal 2018-2023/2024-2025 split). PROVISIONAL pending researcher/institution confirmation before thesis use.",
   "runtime": "onnxruntime-web (CPU only)",
   "opset": 14,
   "feature_order": [
@@ -10,6 +9,9 @@
     "Number of Dropped Courses",
     "Total Units Taken",
     "Year Level",
+    "n_subjects_t",
+    "mean_grade_t",
+    "n_failed_grades_t",
     "Course/Program Enrolled",
     "Enrollment History",
     "Previous Academic Standing"
@@ -46,6 +48,24 @@
       "shape": "[N,1]"
     },
     {
+      "feature": "n_subjects_t",
+      "onnx_name": "n_subjects_t",
+      "dtype": "float32",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "mean_grade_t",
+      "onnx_name": "mean_grade_t",
+      "dtype": "float32",
+      "shape": "[N,1]"
+    },
+    {
+      "feature": "n_failed_grades_t",
+      "onnx_name": "n_failed_grades_t",
+      "dtype": "float32",
+      "shape": "[N,1]"
+    },
+    {
       "feature": "Course/Program Enrolled",
       "onnx_name": "Course_Program_Enrolled",
       "dtype": "string",
@@ -70,16 +90,22 @@
     "Number_of_Dropped_Courses",
     "Total_Units_Taken",
     "Year_Level",
+    "n_subjects_t",
+    "mean_grade_t",
+    "n_failed_grades_t",
     "Course_Program_Enrolled",
     "Enrollment_History",
     "Previous_Academic_Standing"
   ],
   "numeric_median_impute": {
-    "GWA": 1.75,
+    "GWA": 1.759,
     "Number of Failed Courses": 0.0,
     "Number of Dropped Courses": 0.0,
     "Total Units Taken": 25.0,
-    "Year Level": 2.0
+    "Year Level": 2.0,
+    "n_subjects_t": 9.0,
+    "mean_grade_t": 1.7333333333333334,
+    "n_failed_grades_t": 0.0
   },
   "categorical_vocabularies": {
     "Course/Program Enrolled": {
@@ -95,6 +121,7 @@
         "BSCS",
         "BSED-ENGL",
         "BSED-FIL",
+        "BSED-MAPEH",
         "BSED-MATH",
         "BSED-SOCSTUD",
         "BSISM",
@@ -122,7 +149,7 @@
         "Enrollment #8",
         "Enrollment #9"
       ],
-      "absent_value_fill_most_frequent": "Enrollment #2",
+      "absent_value_fill_most_frequent": "Enrollment #1",
       "unknown_handling": "ignore (all-zero one-hot slice)"
     },
     "Previous Academic Standing": {
@@ -136,11 +163,11 @@
       "unknown_handling": "ignore (all-zero one-hot slice)"
     }
   },
-  "categorical_absent_sentinel": "Send \"\" for a missing categorical; the graph fills the most-frequent value above. Do not send null/NaN in string tensors.",
+  "categorical_absent_sentinel": "Send \"\" for a missing categorical; the graph fills the most-frequent value above.",
   "numeric_missing": "Send NaN for a missing numeric; the graph median-imputes.",
   "onehot_order": "concatenated in categorical_features order",
   "outputs": {
-    "label": "int64 [N] (classes [0, 1]; 1 = provisional at-risk)",
+    "label": "int64 [N] (classes [0, 1]; 1 = at-risk in semester t+1)",
     "probabilities": "float32 [N,2] columns align with classes [0,1]"
   },
   "classes": [

@@ -1,0 +1,43 @@
+{
+  "leakage_guards": "pass (assertions in DatasetBuilder.build executed)",
+  "temporal_separation": "pass (train [2018, 2019, 2020, 2021, 2022, 2023] vs test [2024, 2025], no year overlap)",
+  "confusion_matrix_arithmetic": "pass (sklearn cross-check asserts in Evaluator)",
+  "dummy_present": true,
+  "versions_recorded": {
+    "python": "3.12.4",
+    "pandas": "3.0.5",
+    "numpy": "2.4.6",
+    "scikit-learn": "1.9.0",
+    "imbalanced-learn": "0.14.2",
+    "skl2onnx": "1.20.0",
+    "onnx": "1.22.0",
+    "onnxruntime": "1.29.0"
+  },
+  "best_model_story": "Naive Bayes (with_smote) by recall=0.8114",
+  "onnx_parity": {
+    "decision_tree": {
+      "pred_match": true,
+      "max_abs_proba_diff": 3.973642981325298e-08,
+      "n_rows": 1500
+    },
+    "random_forest": {
+      "pred_match": true,
+      "max_abs_proba_diff": 0.060000017192742006,
+      "n_rows": 1500
+    },
+    "logistic_regression": {
+      "pred_match": true,
+      "max_abs_proba_diff": 9.345810880745375e-08,
+      "n_rows": 1500
+    },
+    "naive_bayes": {
+      "pred_match": true,
+      "max_abs_proba_diff": 2.777127370512389e-06,
+      "n_rows": 1500
+    }
+  },
+  "files": {
+    "model_metrics": "C:\\Users\\joashua\\Downloads\\academic_risk_dashboard\\public\\data\\model_metrics.json",
+    "feature_importance": "C:\\Users\\joashua\\Downloads\\academic_risk_dashboard\\public\\data\\feature_importance.json"
+  }
+}
