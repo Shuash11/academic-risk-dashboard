@@ -73,25 +73,22 @@ export class OnnxRunner {
 
   buildFeeds(rows) {
     const n = rows.length
-    function numCol(fn) {
-      const a = new Float32Array(n)
-      for (let i = 0; i < n; i++) a[i] = rows[i][fn]
-      return new ort.Tensor('float32', a, [n, 1])
-    }
-    function strCol(fn) {
-      const a = new Array(n)
-      for (let i = 0; i < n; i++) a[i] = rows[i][fn] || ''
-      return new ort.Tensor('string', a, [n, 1])
-    }
     const feeds = {}
-    feeds[AppConfig.inputNames[0]] = numCol('gwa')
-    feeds[AppConfig.inputNames[1]] = numCol('failed')
-    feeds[AppConfig.inputNames[2]] = numCol('dropped')
-    feeds[AppConfig.inputNames[3]] = numCol('units')
-    feeds[AppConfig.inputNames[4]] = numCol('year')
-    feeds[AppConfig.inputNames[5]] = strCol('program')
-    feeds[AppConfig.inputNames[6]] = strCol('enrollHist')
-    feeds[AppConfig.inputNames[7]] = strCol('prevStanding')
+    // 11 feeds in exact session_input_order (models/onnx_inputs.json):
+    // 8 numeric float32 [N,1] + 3 categorical string [N,1].
+    // dtype comes from the contract descriptor in AppConfig.inputFeeds.
+    for (const input of AppConfig.inputFeeds) {
+      if (input.dtype === 'string') {
+        const a = new Array(n)
+        for (let i = 0; i < n; i++) a[i] = rows[i][input.key] || ''
+        feeds[input.name] = new ort.Tensor('string', a, [n, 1])
+      } else {
+        // NaN for a missing numeric -> the graph median-imputes in-graph.
+        const a = new Float32Array(n)
+        for (let i = 0; i < n; i++) a[i] = rows[i][input.key]
+        feeds[input.name] = new ort.Tensor('float32', a, [n, 1])
+      }
+    }
     return feeds
   }
 

@@ -53,9 +53,9 @@ export function About() {
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="rounded-2xl bg-white border border-slate-200 p-6">
-          <h3 className="font-bold text-slate-900">Inputs · 8 features</h3>
+          <h3 className="font-bold text-slate-900">Inputs · 11 features</h3>
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
-            <li><span className="font-semibold">Numeric (float32 [N,1]):</span> GWA, Failed, Dropped, Total Units, Year Level</li>
+            <li><span className="font-semibold">Numeric (float32 [N,1]):</span> GWA, Failed, Dropped, Total Units, Year Level, n_subjects_t (subjects this semester), mean_grade_t (mean final grade), n_failed_grades_t (failed subjects in grades string)</li>
             <li><span className="font-semibold">Categorical (string [N,1]):</span> Program, Enrollment History, Previous Standing</li>
             <li className="text-slate-500">Missing → numerics <code>NaN</code> median-imputed, categoricals <code>""</code> mode-imputed in-graph.</li>
           </ul>

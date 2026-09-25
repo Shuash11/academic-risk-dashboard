@@ -177,18 +177,19 @@ export function AcademicProfile({ rows }) {
 
     const gwaBins = makeHistogramBins(rows.map((r) => r.gwa), [0, 1.0, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 4.0, 5.0])
 
-    const atRiskCount = rows.filter((r) => {
-      const gwa = typeof r.gwa === 'number' && isFinite(r.gwa) ? r.gwa : null
+    // Same-semester fail/drop counts — descriptive context only, NOT the model's
+    // t+1 target (the models predict at-risk on the student's NEXT record).
+    const failedDropCount = rows.filter((r) => {
       const failed = typeof r.failed === 'number' && isFinite(r.failed) ? r.failed : 0
       const dropped = typeof r.dropped === 'number' && isFinite(r.dropped) ? r.dropped : 0
-      return (gwa !== null && gwa >= 2.5) || failed > 0 || dropped > 0
+      return failed > 0 || dropped > 0
     }).length
 
     return {
       totalRows: rows.length,
       gwaStats, failedStats, droppedStats, unitsStats, yearStats,
       programBreakdown, standingBreakdown, enrollBreakdown,
-      gwaBins, atRiskCount, atRiskRate: rows.length ? atRiskCount / rows.length : 0,
+      gwaBins, failedDropCount, failedDropRate: rows.length ? failedDropCount / rows.length : 0,
     }
   }, [rows])
 
@@ -220,10 +221,13 @@ export function AcademicProfile({ rows }) {
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <Stat label="Total Records" value={stats.totalRows.toLocaleString()} />
         <Stat label="Unique Programs" value={stats.programBreakdown.length} />
-        <Stat label="At-Risk Records" value={stats.atRiskCount.toLocaleString()} />
-        <Stat label="At-Risk Rate" value={(stats.atRiskRate * 100).toFixed(1) + '%'} />
+        <Stat label="Failed/Drop Records" value={stats.failedDropCount.toLocaleString()} />
+        <Stat label="Failed/Drop Rate" value={(stats.failedDropRate * 100).toFixed(1) + '%'} />
         <Stat label="Missing GWA" value={stats.gwaStats ? stats.gwaStats.missing.toLocaleString() : '0'} />
       </div>
+      <p className="mt-3 text-xs text-slate-500">
+        Failed/Drop counts describe the current semester's records — rows with at least one failed or dropped course. Descriptive context only, not the model's t+1 target.
+      </p>
 
       <div className="mt-6 rounded-2xl bg-white border border-slate-200 overflow-hidden">
         <div className="px-6 py-4 bg-slate-900 text-white">
@@ -291,8 +295,8 @@ export function AcademicProfile({ rows }) {
         <h3 className="font-bold text-slate-900">About this profile</h3>
         <ul className="mt-3 space-y-2 text-sm text-slate-600 list-disc ml-5 marker:text-slate-400">
           <li>All statistics are computed in-browser from the imported CSV data — no data is sent anywhere.</li>
-          <li>The at-risk rate is calculated using: GWA &ge; 2.5 <strong>or</strong> Failed Courses &gt; 0 <strong>or</strong> Dropped Courses &gt; 0.</li>
-          <li>GWA values range from 1.0 (highest) to 5.0 (lowest) in the Philippine grading system.</li>
+          <li>The models predict at-risk on the student's NEXT record (t+1): failing or dropping courses on the next enrollment. The same-semester counts above are descriptive context only — the earlier candidate target (next-semester academic standing) was audited, found exactly re-derivable from same-semester data, and rejected (see prediction_design in <code className="bg-slate-100 border border-slate-200 rounded px-1">model_metrics.json</code>).</li>
+          <li>GWA values range from 1.0 (highest) to 5.0 (lowest) in the Philippine grading system; only exactly 5.0 denotes a failed subject.</li>
           <li>Missing values are shown separately — the ONNX models handle imputation internally.</li>
         </ul>
       </div>

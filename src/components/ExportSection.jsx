@@ -16,7 +16,7 @@ export function ExportSection({ onPrint, onCsv, onJson }) {
       <details className="mt-4 text-sm bg-slate-50 rounded-xl border border-slate-200 p-4">
         <summary className="cursor-pointer font-semibold text-slate-900">How it works</summary>
         <ul className="mt-3 space-y-2 text-slate-600 list-disc ml-5 marker:text-slate-400">
-          <li>Inputs (8, session order): 5× <code className="bg-white border border-slate-200 rounded px-1">float32 [N,1]</code> — GWA, Failed, Dropped, Units, Year; 3× <code className="bg-white border border-slate-200 rounded px-1">string [N,1]</code> — Program, Enrollment History, Previous Standing.</li>
+          <li>Inputs (11, session order): 8× <code className="bg-white border border-slate-200 rounded px-1">float32 [N,1]</code> — GWA, Failed, Dropped, Units, Year, n_subjects_t, mean_grade_t, n_failed_grades_t; 3× <code className="bg-white border border-slate-200 rounded px-1">string [N,1]</code> — Program, Enrollment History, Previous Standing.</li>
           <li>Outputs: <code className="bg-white border border-slate-200 rounded px-1">label</code> int64 [N] (0 / 1, 1 = at-risk), <code className="bg-white border border-slate-200 rounded px-1">probabilities</code> float32 [N,2].</li>
           <li>Bands on P(at-risk): Low 0–0.39 · Medium 0.40–0.69 · High 0.70–1.00.</li>
           <li>Parity: opset 14, predictions exact, max Δproba ≤ 1e-5 — missing → <code className="bg-white border border-slate-200 rounded px-1">NaN</code> / <code className="bg-white border border-slate-200 rounded px-1">""</code> in-graph imputed.</li>

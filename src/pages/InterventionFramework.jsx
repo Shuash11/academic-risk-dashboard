@@ -159,12 +159,12 @@ export function InterventionFramework() {
           <div className="rounded-xl bg-red-50 border border-red-200 p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-red-700">Primary predictor</p>
             <p className="mt-1 text-lg font-bold text-red-900">Number of Failed Courses</p>
-            <p className="mt-1 text-sm text-red-800">The strongest indicator across all models. Students with even 1 failed course show significantly elevated risk.</p>
+            <p className="mt-1 text-sm text-red-800">Recorded failures co-occur with at-risk outputs in the retrained models. Importance reflects model reliance — not causal significance; see the Predictors tab for per-model importance rankings.</p>
           </div>
           <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-amber-700">Secondary predictor</p>
             <p className="mt-1 text-lg font-bold text-amber-900">GWA (General Weighted Average)</p>
-            <p className="mt-1 text-sm text-amber-800">GWA ≥ 2.5 is a strong risk signal. Monitor students approaching this threshold, especially in combination with failed courses.</p>
+            <p className="mt-1 text-sm text-amber-800">GWA sits on the Philippine 1.0–5.0 scale (only exactly 5.0 denotes a failed subject). Higher GWA values co-occur with at-risk outputs — monitor students whose GWA is worsening, especially alongside failed courses.</p>
           </div>
           <div className="rounded-xl bg-slate-50 border border-slate-200 p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-slate-600">Contributing factor</p>
@@ -174,7 +174,7 @@ export function InterventionFramework() {
           <div className="rounded-xl bg-slate-50 border border-slate-200 p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-slate-600">Contextual indicator</p>
             <p className="mt-1 text-lg font-bold text-slate-900">Previous Academic Standing</p>
-            <p className="mt-1 text-sm text-slate-700">A history of "With Failed Courses" or "With Dropped Courses" significantly increases future risk. Track longitudinal patterns.</p>
+            <p className="mt-1 text-sm text-slate-700">A history of "With Failed Courses" or "With Dropped Courses" co-occurs with at-risk outputs in the retrained models. Track longitudinal patterns.</p>
           </div>
         </div>
       </div>

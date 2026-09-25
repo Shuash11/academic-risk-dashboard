@@ -1,5 +1,10 @@
+import { GradeParser } from './gradeParser.js'
+
+// Shared, stateless parser instance (mirrors training's DatasetBuilder.parser).
+const gradeParser = new GradeParser()
+
 export const FeatureMapper = {
-  FEATURES: ['gwa', 'failed', 'dropped', 'units', 'year', 'program', 'enrollHist', 'prevStanding'],
+  FEATURES: ['gwa', 'failed', 'dropped', 'units', 'year', 'finalGrades', 'program', 'enrollHist', 'prevStanding'],
   NUMERIC_KEYS: ['gwa', 'failed', 'dropped', 'units', 'year'],
 
   ALIASES: {
@@ -16,6 +21,7 @@ export const FeatureMapper = {
     dropped: ['number of dropped courses', 'no of dropped courses', 'dropped courses', 'num dropped'],
     units: ['total units taken', 'total units', 'units taken', 'units', 'total unit'],
     year: ['year level', 'year', 'yr level', 'yr', 'level'],
+    finalGrades: ['final grades', 'final grade', 'grades'],
     program: [
       'course program enrolled',
       'course enrolled',
@@ -92,6 +98,7 @@ export const FeatureMapper = {
     let missingNumeric = 0
     let missingCat = 0
     let badNumeric = 0
+    let gradeSkipped = 0
     const rows = records.map((rec, r) => {
       function cell(key) {
         const ci = mapping[key]
@@ -114,6 +121,10 @@ export const FeatureMapper = {
         if (s === '') missingNumeric++
         else if (isNaN(vals[k])) badNumeric++
       })
+      // Final Grades string -> time-t aggregates (exact GradeParser semantics).
+      // Missing/unparseable -> NaN for all three; the graphs median-impute in-graph.
+      const grades = gradeParser.parse(cell('finalGrades'))
+      gradeSkipped += grades.skipped
       const program = FeatureMapper.parseCategorical(cell('program'))
       const enrollHist = FeatureMapper.parseCategorical(cell('enrollHist'))
       const prevStanding = FeatureMapper.parseCategorical(cell('prevStanding'))
@@ -130,11 +141,14 @@ export const FeatureMapper = {
         dropped,
         units,
         year,
+        nSubjects: grades.nSubjects,
+        meanGrade: grades.meanGrade,
+        nFailedGrades: grades.nFailedGrades,
         program,
         enrollHist,
         prevStanding,
       }
     })
-    return { rows, missingNumeric, missingCat, badNumeric }
+    return { rows, missingNumeric, missingCat, badNumeric, gradeSkipped }
   },
 }

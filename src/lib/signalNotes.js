@@ -19,7 +19,7 @@ export const SignalNotes = {
     if (units !== null && units < 18) notes.push('Low unit load (' + units + ').')
     if (year !== null && year >= 4) notes.push('Upper year level (' + year + ').')
     const missing =
-      [row.gwa, row.failed, row.dropped, row.units, row.year].filter((v) => !(typeof v === 'number' && isFinite(v))).length +
+      [row.gwa, row.failed, row.dropped, row.units, row.year, row.nSubjects, row.meanGrade, row.nFailedGrades].filter((v) => !(typeof v === 'number' && isFinite(v))).length +
       [row.program, row.enrollHist, row.prevStanding].filter((v) => !v).length
     if (missing > 0) notes.push(missing + ' field(s) missing — filled in-graph (numeric medians / most-frequent categories).')
     if (notes.length === 0) notes.push('No strong heuristic signals in this row.')

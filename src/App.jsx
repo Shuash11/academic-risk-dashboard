@@ -131,6 +131,9 @@ export default function App() {
       return
     }
     if (missing.length > 0) warn('Missing columns [' + missing.join(', ') + '] — those inputs will be imputed in-graph.')
+    if (missing.indexOf('finalGrades') !== -1) {
+      warn('Final Grades column not found — n_subjects_t / mean_grade_t / n_failed_grades_t will be median-imputed inside the models (train medians: 9 subjects · 1.733 mean · 0 failed).')
+    }
 
     setImportProgress({ current: 3, total: 3, phase: 'Converting rows…', detail: 'Processing ' + parsed.records.length.toLocaleString() + ' records' })
     await new Promise((r) => setTimeout(r, 40))
@@ -142,7 +145,7 @@ export default function App() {
     }
     let mn = 0, mc = 0
     converted.rows.forEach((r) => {
-      ;[r.gwa, r.failed, r.dropped, r.units, r.year].forEach((v) => { if (!(typeof v === 'number' && isFinite(v))) mn++ })
+      ;[r.gwa, r.failed, r.dropped, r.units, r.year, r.nSubjects, r.meanGrade, r.nFailedGrades].forEach((v) => { if (!(typeof v === 'number' && isFinite(v))) mn++ })
       ;[r.program, r.enrollHist, r.prevStanding].forEach((v) => { if (!v) mc++ })
     })
     converted = { ...converted, missingNumeric: mn, missingCat: mc, badNumeric: 0 }
@@ -153,7 +156,8 @@ export default function App() {
     setSelectedRow(-1)
     setActiveModels([])
     setUploadedFile({ name, count: converted.rows.length, isSample: false })
-    info('Imported <strong>' + converted.rows.length + ' row(s)</strong> from <code>' + name + '</code>. Mapped ' + (FeatureMapper.FEATURES.length - missing.length) + '/8 features. Missing numeric cells: ' + converted.missingNumeric + ' (will use median imputation); missing categorical cells: ' + converted.missingCat + ' (will use most-frequent fill). Press Run.')
+    const gradeNote = converted.gradeSkipped > 0 ? ' Unparsed grade tokens skipped: ' + converted.gradeSkipped + '.' : ''
+    info('Imported <strong>' + converted.rows.length + ' row(s)</strong> from <code>' + name + '</code>. Mapped ' + (FeatureMapper.FEATURES.length - missing.length) + '/' + FeatureMapper.FEATURES.length + ' features. Missing numeric cells: ' + converted.missingNumeric + ' (will use median imputation); missing categorical cells: ' + converted.missingCat + ' (will use most-frequent fill).' + gradeNote + ' Press Run.')
     setActiveTab('dashboard')
 
     setIsImporting(false)
