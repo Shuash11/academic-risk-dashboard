@@ -132,7 +132,10 @@ export default function App() {
     }
     if (missing.length > 0) warn('Missing columns [' + missing.join(', ') + '] — those inputs will be imputed in-graph.')
     if (missing.indexOf('finalGrades') !== -1) {
-      warn('Final Grades column not found — n_subjects_t / mean_grade_t / n_failed_grades_t will be median-imputed inside the models (train medians: 9 subjects · 1.733 mean · 0 failed).')
+      // Train medians come from the impute reference (config.js) — derived here so
+      // the warning can never diverge from the contract values.
+      const med = AppConfig.imputeReference.numericMedian
+      warn('Final Grades column not found — n_subjects_t / mean_grade_t / n_failed_grades_t will be median-imputed inside the models (train medians: ' + med.nSubjects + ' subjects · ' + med.meanGrade.toFixed(3) + ' mean · ' + med.nFailedGrades + ' failed).')
     }
 
     setImportProgress({ current: 3, total: 3, phase: 'Converting rows…', detail: 'Processing ' + parsed.records.length.toLocaleString() + ' records' })

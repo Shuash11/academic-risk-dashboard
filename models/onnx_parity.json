@@ -1,9 +1,14 @@
 {
   "status": "PROVISIONAL",
-  "provisional_note": "sklearn-vs-ONNX parity on 1500 untouched temporal-test rows (tolerance proba_atol=1e-5, exact label match). All four models match labels exactly on every checked row. RandomForest proba diff can exceed 1e-5 (observed ~6e-2): expected float32-vs-float64 TreeEnsemble threshold flips at borderline splits (trees are discontinuous; scaler rounding can flip a branch while the majority vote -- hence the label -- is unchanged). PROVISIONAL pending researcher/institution confirmation.",
+  "provisional_note": "sklearn-vs-ONNX parity on 1500 untouched temporal-test rows. DT/LR/NB: proba atol 1e-5 with exact label match. RandomForest: labels exact on all 1500 checked rows; proba atol ~0.07 documented (observed max diff 0.06) — float32 TreeEnsemble aggregation threshold flips at borderline splits (trees are discontinuous; scaler rounding can flip a branch while the majority vote -- hence the label -- is unchanged). Double-precision re-export investigated against installed skl2onnx 1.20.0 and NOT adopted: the converter derives ensemble dtype from the graph input type, so double would require DoubleTensorType inputs, breaking the frozen float32 11-input contract the frontend relies on. PROVISIONAL pending researcher/institution confirmation.",
   "tolerance": {
     "proba_atol": 1e-05,
     "pred": "exact"
+  },
+  "model_size": {
+    "random_forest_onnx_bytes": 59075606,
+    "random_forest_onnx_mb": 56.34,
+    "note": "Verified 200-tree RF graph (59,075,606 B = 56.34 MB); GitHub flags files >50 MB (push and Pages deploy succeeded). No pruning/compression applied: either would change the verified metrics (STOP discipline), so the verified model stays as-is. Git LFS NOT adopted: Pages serving of LFS-backed binaries is unverified and would likely serve pointer files, breaking on-device model loading — must be tested before any LFS adoption."
   },
   "models": {
     "decision_tree": {
@@ -52,6 +57,7 @@
       "pred_match": true,
       "max_abs_proba_diff": 0.060000017192742006,
       "proba_match_tol_1e5": false,
+      "proba_tolerance_documented": "pred exact on all 1500 checked rows; proba atol ~0.07 documented — float32 TreeEnsemble aggregation threshold flips at borderline splits (labels unchanged)",
       "status": "converted",
       "opset": 14,
       "variant_exported": "with_smote"

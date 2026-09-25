@@ -128,7 +128,8 @@ export function ModelEvaluation() {
   const bestCM = bestMetrics && bestMetrics.confusion_matrix && bestMetrics.confusion_matrix.length === 2 ? bestMetrics.confusion_matrix : null
   const bestTp = bestCM ? bestCM[1][1] : null
   const bestFn = bestCM ? bestCM[1][0] : null
-  const alertsInTen = bestMetrics && bestMetrics.precision > 0 ? Math.round(1 / bestMetrics.precision) : null
+  // False alarms per 10 alerts = 10 × (1 − precision): precision 0.1076 → ~9 of 10.
+  const alertsInTen = bestMetrics && bestMetrics.precision != null ? Math.round(10 * (1 - bestMetrics.precision)) : null
   const flaggedShare = bestMetrics ? ((1 - bestMetrics.specificity) * 100).toFixed(1) : null
 
   // SMOTE effect on recall, computed per model from the per-variant data.

@@ -12,7 +12,14 @@ FILES (this folder)
 index.html        Vite entry point (serves src/ in dev, dist/ after build).
 models/           4 retrained ONNX models (opset 14) + contracts:
                     decision_tree.onnx        (~42 KB)
-                    random_forest.onnx        (~56.3 MB — slower to load)
+                    random_forest.onnx        (~56.3 MB — slower to load;
+                                               measured 59,075,606 B = 56.34 MB.
+                                               GitHub flags files >50 MB (push +
+                                               Pages deploy succeeded). Kept as-is:
+                                               pruning/compressing would change the
+                                               verified metrics; LFS not adopted
+                                               (Pages serving of LFS binaries is
+                                               unverified — test before any move))
                     logistic_regression.onnx  (~4 KB)
                     naive_bayes.onnx          (~6 KB)
                     onnx_inputs.json          I/O contract (11 inputs, 2 outputs)

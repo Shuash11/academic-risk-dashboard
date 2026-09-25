@@ -38,6 +38,9 @@ export function Compare() {
                 const ok = p.pred_match
                 const within = p.proba_match_tol_1e5
                 const delta = p.max_abs_proba_diff
+                // Formalized RF tolerance from onnx_parity.json — extract the documented
+                // atol ("…; proba atol ~0.07 documented — …") shown under the strict-1e-5 fail pill.
+                const rfTol = p.proba_tolerance_documented ? (p.proba_tolerance_documented.match(/atol ~(0\.\d+)/) || [])[1] : null
                 return (
                   <tr key={m.id} className="hover:bg-slate-50">
                     <td className="py-3 px-3 font-semibold text-slate-900">{m.label}</td>
@@ -45,7 +48,16 @@ export function Compare() {
                     <td className="py-3 px-3 text-right tabular-nums font-mono text-xs">{m.size}</td>
                     <td className="py-3 px-3 text-center">{ok ? <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">✓ exact</span> : <span className="text-amber-700">mismatch</span>}</td>
                     <td className="py-3 px-3 text-right tabular-nums font-mono text-xs">{delta != null ? delta.toExponential(2) : '—'}</td>
-                    <td className="py-3 px-3 text-center">{within ? <span className="inline-flex px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">pass</span> : <span className="inline-flex px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs">fail</span>}</td>
+                    <td className="py-3 px-3 text-center">
+                      {within ? (
+                        <span className="inline-flex px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">pass</span>
+                      ) : (
+                        <span className="inline-flex flex-col items-center gap-0.5">
+                          <span className="inline-flex px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs">fail</span>
+                          {rfTol && <span className="text-[0.6rem] text-amber-700">atol ~{rfTol} documented</span>}
+                        </span>
+                      )}
+                    </td>
                     <td className="py-3 px-3"><span className="inline-flex px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-semibold">{p.status || 'converted'}</span></td>
                   </tr>
                 )
@@ -55,7 +67,7 @@ export function Compare() {
         </div>
         <div className="px-4 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-600">
           <p>
-            Tolerance: <code className="bg-white border border-slate-200 rounded px-1">proba_atol 1e-5</code> · <code>pred exact</code> · All 4 models <span className="font-semibold text-emerald-700">converted</span> on opset 14 — and all 4 match labels exactly on every checked row. Graph compat: categorical sentinel NaN→"" re-declared for ONNX only (fills unchanged).
+            Tolerance: <code className="bg-white border border-slate-200 rounded px-1">proba_atol 1e-5</code> · <code>pred exact</code> · All 4 models <span className="font-semibold text-emerald-700">converted</span> on opset 14 — and all 4 match labels exactly on every checked row. Graph compat: numerics → <code>NaN</code> (median-imputed in-graph); categoricals → <code>""</code> (most-frequent fill in-graph) — re-declared for ONNX only.
           </p>
           <p className="mt-1.5">
             RandomForest proba diff can exceed 1e-5 (observed ~6e-2): expected float32-vs-float64 TreeEnsemble threshold flips at borderline splits (trees are discontinuous; scaler rounding can flip a branch while the majority vote — hence the label — is unchanged).

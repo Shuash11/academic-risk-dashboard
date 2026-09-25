@@ -1,6 +1,6 @@
 {
   "status": "PROVISIONAL",
-  "provisional_note": "RETRAINED leakage-free pipeline (t+1 standing target, temporal 2018-2023/2024-2025 split). PROVISIONAL pending researcher/institution confirmation before thesis use.",
+  "provisional_note": "RETRAINED leakage-free pipeline (t+1 fail/drop target: at_risk_t1 = failed_{t+1}>0 OR dropped_{t+1}>0; temporal 2018–2023/2024–2025 split). PROVISIONAL pending researcher/institution confirmation before thesis use.",
   "runtime": "onnxruntime-web (CPU only)",
   "opset": 14,
   "feature_order": [
