@@ -198,7 +198,7 @@ export function AcademicProfile({ rows }) {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <h1 className="text-[1.7rem] sm:text-2xl font-extrabold tracking-tight text-slate-900">Academic Profile</h1>
         <p className="mt-2 text-[0.95rem] leading-relaxed text-slate-600">Descriptive statistics and analysis of student academic records.</p>
-        <p className="mt-6 text-sm text-slate-500 italic rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">No data loaded — import a CSV or load sample rows on the Dashboard tab to view the academic profile.</p>
+        <p className="mt-6 text-sm text-slate-500 italic rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">No data loaded — import a CSV on the Dashboard tab to view the academic profile.</p>
       </div>
     )
   }

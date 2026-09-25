@@ -50,7 +50,7 @@ function StudentGroup({ group, models, results, selectedRow, onSelectRow, isExpa
       </button>
 
       {isExpanded && (
-        <div className="border-t border-slate-100">
+        <div className="border-t border-slate-100 overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50">
               <tr className="text-left text-[0.7rem] uppercase tracking-wide text-slate-500">
@@ -66,6 +66,9 @@ function StudentGroup({ group, models, results, selectedRow, onSelectRow, isExpa
                 <th className="py-2 px-4 font-semibold">Enrollment</th>
                 <th className="py-2 px-4 font-semibold">Year</th>
                 <th className="py-2 px-4 font-semibold">GWA</th>
+                <th className="py-2 px-4 font-semibold text-right" title="Subjects this semester (parsed from Final Grades)">n_subjects_t</th>
+                <th className="py-2 px-4 font-semibold text-right" title="Mean final grade (parsed from Final Grades)">mean_grade_t</th>
+                <th className="py-2 px-4 font-semibold text-right" title="Failed subjects in grades string (grade exactly 5.0)">n_failed_grades_t</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -84,6 +87,9 @@ function StudentGroup({ group, models, results, selectedRow, onSelectRow, isExpa
                     <td className="py-2.5 px-4 text-xs text-slate-700">{row.enrollHist || '—'}</td>
                     <td className="py-2.5 px-4 text-xs text-slate-700">{fmtCell(row.year) || '—'}</td>
                     <td className="py-2.5 px-4 text-xs tabular-nums font-medium">{fmtCell(row.gwa) ?? <span className="text-slate-400">—</span>}</td>
+                    <td className="py-2.5 px-4 text-xs tabular-nums text-right">{fmtCell(row.nSubjects) ?? <span className="text-slate-400" title="no parsable grades → in-graph median imputation">—</span>}</td>
+                    <td className="py-2.5 px-4 text-xs tabular-nums text-right">{fmtCell(row.meanGrade) ?? <span className="text-slate-400" title="no parsable grades → in-graph median imputation">—</span>}</td>
+                    <td className="py-2.5 px-4 text-xs tabular-nums text-right">{fmtCell(row.nFailedGrades) ?? <span className="text-slate-400" title="no parsable grades → in-graph median imputation">—</span>}</td>
                   </tr>
                 )
               })}
@@ -294,6 +300,9 @@ export function ResultsTable({ rows, results, activeModels, allModels, selectedM
                 <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">GWA</dt><dd className="mt-1 font-medium text-slate-900">{fmtCell(row.gwa) ?? <span className="text-slate-400 text-xs">missing → in-graph fill</span>}</dd></div>
                 <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Failed / Dropped</dt><dd className="mt-1 font-medium text-slate-900">{fmtCell(row.failed) ?? '—'} / {fmtCell(row.dropped) ?? '—'}</dd></div>
                 <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Units / Year</dt><dd className="mt-1 font-medium text-slate-900">{fmtCell(row.units) ?? '—'} / {fmtCell(row.year) ?? '—'}</dd></div>
+                <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500" title="Subjects this semester (parsed from Final Grades)">n_subjects_t</dt><dd className="mt-1 font-medium text-slate-900">{fmtCell(row.nSubjects) ?? <span className="text-slate-400 text-xs">no parsable grades → in-graph fill</span>}</dd></div>
+                <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500" title="Mean final grade (parsed from Final Grades)">mean_grade_t</dt><dd className="mt-1 font-medium text-slate-900">{fmtCell(row.meanGrade) ?? <span className="text-slate-400 text-xs">no parsable grades → in-graph fill</span>}</dd></div>
+                <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500" title="Failed subjects in grades string (grade exactly 5.0)">n_failed_grades_t</dt><dd className="mt-1 font-medium text-slate-900">{fmtCell(row.nFailedGrades) ?? <span className="text-slate-400 text-xs">no parsable grades → in-graph fill</span>}</dd></div>
                 <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Program</dt><dd className="mt-1 font-medium text-slate-900">{row.program || <span className="text-slate-400 text-xs">missing → in-graph fill</span>}</dd></div>
                 <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Enrollment</dt><dd className="mt-1 font-medium text-slate-900">{row.enrollHist || <span className="text-slate-400 text-xs">missing</span>}</dd></div>
                 <div className="rounded-lg bg-white border border-slate-200 p-3"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Previous standing</dt><dd className="mt-1 font-medium text-slate-900">{row.prevStanding || <span className="text-slate-400 text-xs">missing</span>}</dd></div>

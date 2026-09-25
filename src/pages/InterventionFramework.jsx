@@ -184,6 +184,9 @@ export function InterventionFramework() {
         <p className="mt-2 text-sm text-slate-600 leading-relaxed">
           This framework is advisory in nature. Predictive model outputs are probabilistic estimates, not certainties. All intervention decisions must be made in consultation with qualified academic advisors who consider the complete context of each student's situation. Model outputs should never be the sole basis for punitive academic decisions.
         </p>
+        <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+          The Low/Medium/High bands are presentation cutoffs on P(at-risk), not validated institutional risk thresholds; live probabilities from the ONNX graphs can differ from scikit-learn by up to ~0.06 at borderline splits (see <code className="bg-slate-100 border border-slate-200 rounded px-1">onnx_parity.json</code>). Treat bands as indicative only.
+        </p>
       </div>
     </div>
   )

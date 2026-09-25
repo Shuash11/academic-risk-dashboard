@@ -11,51 +11,37 @@ const GREY = {
 }
 
 const STEPS = [
-  { n: 1, title: 'Student data', detail: [{ t: 'CSV / Excel — the study table is provided.', i: true }] },
-  { n: 2, title: 'Datasets loading', detail: [{ t: 'loader.py' }, { t: 'File is opened and read.' }] },
-  { n: 3, title: 'Dataset inspection', detail: [{ t: 'inspector.py' }, { t: 'Summarizes rows, columns and types.' }] },
-  {
-    n: 4,
-    title: 'Quality checking',
-    detail: [
-      { t: 'quality.py' },
-      { t: 'Audits the table, flags problems.' },
-      { t: 'Issues only (never deletes):', i: true },
-      { t: 'duplicates · missing values' },
-      { t: 'impossible values · IQR outliers' },
-      { t: 'constant columns' },
-    ],
-  },
-  { n: 5, title: 'Processing', detail: [{ t: 'processing.py' }, { t: 'States what each algorithm needs.' }] },
-  { n: 6, title: 'Split dates', detail: [{ t: 'splitter.py' }, { t: 'Separates dates 2019–2023 (training) & 2024–2025 (final check).' }] },
-  { n: 7, title: '5-fold CV · student-grouped folds', detail: [{ t: 'No student appears in two folds.' }, { t: 'Identical folds for every model.', i: true }] },
-
-
-  { n: 8, title: 'SMOTE', detail: [
-    { t: 'Risk — synthetic rows invented from the sliced table.' },
-    { t: 'Non-risk — original rows from the sliced table.' },
-    { t: 'Both conditions run: no-SMOTE vs SMOTE (final holdout uses no-SMOTE).', i: true },
+  { n: 1, title: 'Student data', detail: [{ t: 'CSV / Excel — the study table is provided.', i: true }, { t: '71,036 rows · 15,401 unique students.' }] },
+  { n: 2, title: 'Datasets loading', detail: [{ t: 'loader.py' }, { t: '12 required columns validated.' }] },
+  { n: 3, title: 'Student-semester records', detail: [{ t: 'dataset_builder.py' }, { t: 'One row = one student-semester.', i: true }, { t: 'Final Grades parsed → 3 aggregates.' }] },
+  { n: 4, title: 'Define prediction date', detail: [{ t: 'End of semester t — the prediction point.', i: true }, { t: 'Predictors: end-of-t information only.' }] },
+  { n: 5, title: 'Define future target', detail: [{ t: 't+1: fail/drop on the NEXT record.', i: true }, { t: 'First-candidate standing rule audited → degenerate → rejected.' }] },
+  { n: 6, title: 'Remove leakage variables', detail: [{ t: 't+1 outcomes never in predictors.', i: true }, { t: 'Target asserted absent from model inputs.' }] },
+  { n: 7, title: 'Split dates', detail: [{ t: 'splitter.py' }, { t: 'Chronological: 2018–2023 (train) & 2024–2025 (test), no shuffling.' }] },
+  { n: 8, title: 'Preprocessing', detail: [{ t: 'pipeline.py' }, { t: 'Median/scale numerics · most-frequent/one-hot categoricals.' }, { t: 'Fitted inside every fold.', i: true }] },
+  { n: 9, title: '5-fold CV · student-grouped folds', detail: [{ t: 'No student appears in two folds.' }, { t: 'Identical folds for every model.', i: true }] },
+  { n: 10, title: 'SMOTE', detail: [
+    { t: 'k_neighbors = 5 — auto-reduced on small folds.' },
+    { t: 'Blanks filled first: median (numbers), most-frequent (words).' },
+    { t: 'Inside training folds only — never the temporal test.', i: true },
   ] },
-
-  { n: 9, title: 'GridSearchCV tuning', detail: [
-    { t: 'Tuned on dev folds only (F1 At-Risk).' },
-    { t: 'DT max_depth=10 · RF max_depth=10, 200 trees.' },
-    { t: 'LR C=1.0 · NB var_smoothing=1e-06.' },
+  { n: 11, title: 'GridSearchCV tuning', detail: [
+    { t: 'Tuned on dev folds only (Recall — primary metric).', i: true },
+    { t: 'DT max_depth=10 · RF max_depth=20, 200 trees.' },
+    { t: 'LR C=10.0 · NB: no grid.' },
   ] },
-
-  { n: 10, title: 'Score every model', detail: [
-    { t: 'accuracy — overall correctness' },
-    { t: 'precision — share of alerts that were right' },
-    { t: 'recall — share of at-risk students found' },
-    { t: 'F1 — balance of correct alerts' },
-    { t: 'ROC-AUC — ability to tell groups apart' },
+  { n: 12, title: 'Score & evaluate', detail: [
+    { t: 'Every model × variant on the holdout (2024–2025).', i: true },
+    { t: 'recall — primary · precision · F1' },
+    { t: 'specificity · ROC-AUC · PR-AUC' },
+    { t: '19,445 test rows · threshold 0.5.' },
   ] },
-  { n: 11, title: 'Average the 5 scores', detail: [{ t: 'One trustworthy result per model' }, { t: '(saved for the Wilcoxon test).', i: true }] },
-  { n: 12, title: 'Compare the models', detail: [{ t: 'Same folds for every model.', i: true }, { t: 'Rank them on identical folds.' }] },
-  { n: 13, title: 'Wilcoxon test', detail: [{ t: 'Holm correction, α = 0.05' }, { t: 'Checks if the differences are real — or just luck.' }] },
-  { n: 14, title: 'Select the model', detail: [{ t: 'No retrain.', i: true }, { t: 'Pick the winner based on evidence.' }] },
-  { n: 15, title: 'Final evaluation', detail: [{ t: 'On the holdout data (2024–2025).', i: true }, { t: 'Final test on students never seen in training.' }] },
-  { n: 16, title: 'Report results', detail: [{ t: 'Recorded for the thesis.', i: true }] },
+  { n: 13, title: 'Select the model', detail: [
+    { t: 'Naive Bayes + SMOTE — recall 0.8114 (primary).', i: true },
+    { t: 'No retrain — kept exactly as measured.' },
+  ] },
+  { n: 14, title: 'Export', detail: [{ t: 'model_metrics.json · feature_importance.json.', i: true }, { t: 'ONNX models + contracts (opset 14).' }] },
+  { n: 15, title: 'Report results', detail: [{ t: 'Recorded for the thesis.', i: true }] },
 ]
 
 const MODELS = ['Decision Tree', 'Random Forest', 'Logistic Regression', 'GaussianNB', 'Dummy (Stratified)']
@@ -120,7 +106,7 @@ function FoldLoop({ steps, reg, bracketRef }) {
       {steps.map((s, idx) => (
           <Fragment key={s.n}>
             {idx > 0 && <Wire />}
-            <FlowNode step={s} boxRef={reg(6 + idx)} />
+            <FlowNode step={s} boxRef={reg(8 + idx)} />
           </Fragment>
       ))}
     </div>
@@ -153,7 +139,7 @@ function ModelBranch({ models, reg }) {
     <div className="relative z-10 w-full max-w-[720px] mx-auto">
       <WireRow busAt="top" />
       <div className="grid grid-cols-5 gap-1.5 sm:gap-3">
-        {models.map((name) => <ModelBox key={name} name={name} boxRef={reg(9)} />)}
+        {models.map((name) => <ModelBox key={name} name={name} boxRef={reg(11)} />)}
       </div>
       <WireRow busAt="bottom" />
       <Wire h="h-5" />
@@ -165,10 +151,10 @@ export function PipelineFlow() {
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(1)
   const reduceMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const pre = STEPS.slice(0, 6)
-  const loopSteps = STEPS.slice(6, 8)
-  const tuningStep = STEPS[8]
-  const post = STEPS.slice(9)
+  const pre = STEPS.slice(0, 8)
+  const loopSteps = STEPS.slice(8, 10)
+  const tuningStep = STEPS[10]
+  const post = STEPS.slice(11)
   const containerRef = useRef(null)
   const dotRef = useRef(null)
   const phase3Ref = useRef(null)
@@ -252,7 +238,7 @@ export function PipelineFlow() {
       const minis = miniRefs.current.filter(Boolean)
       dot.style.opacity = '1'
       while (!cancelled) {
-        for (let s = 0; s <= 5; s++) {
+        for (let s = 0; s <= 7; s++) {
           if (cancelled) return
           const els = live(s)
           if (!els.length) continue
@@ -266,7 +252,7 @@ export function PipelineFlow() {
         if (cancelled) return
         for (let round = 0; round < 5; round++) {
           if (cancelled) return
-          for (let s = 6; s <= 6; s++) {
+          for (let s = 8; s <= 8; s++) {
             if (cancelled) return
             const els = live(s)
             if (!els.length) continue
@@ -278,26 +264,26 @@ export function PipelineFlow() {
             setGlow(els, false)
           }
           if (cancelled) return
-        const step11 = live(7)
-        if (step11.length) {
-          const p = rect(step11[0])
+        const smoteStep = live(9)
+        if (smoteStep.length) {
+          const p = rect(smoteStep[0])
           await moveTo(p.x, p.y)
           if (cancelled) return
-          setGlow(step11, true)
+          setGlow(smoteStep, true)
           await later(GLOW_MS)
-          if (cancelled) { setGlow(step11, false); return }
+          if (cancelled) { setGlow(smoteStep, false); return }
         }
-        const tuning = live(8)
+        const tuning = live(10)
         if (tuning.length) {
           const p = rect(tuning[0])
           await moveTo(p.x, p.y)
-          if (cancelled) { setGlow(step11, false); return }
+          if (cancelled) { setGlow(smoteStep, false); return }
           setGlow(tuning, true)
           await later(GLOW_MS)
-          if (cancelled) { setGlow(tuning, false); setGlow(step11, false); return }
+          if (cancelled) { setGlow(tuning, false); setGlow(smoteStep, false); return }
           setGlow(tuning, false)
         }
-        const models = live(9)
+        const models = live(11)
         const chip = phase3Ref.current
         const bracket = bracketRef.current
         const canBranch = Boolean(chip && models.length === 5)
@@ -305,12 +291,12 @@ export function PipelineFlow() {
         if (canBranch) {
           const pc = rect(chip)
           await moveTo(pc.x, pc.y)
-          if (cancelled) { setGlow(step11, false); return }
+          if (cancelled) { setGlow(smoteStep, false); return }
           await later(800 / speed)
-          if (cancelled) { setGlow(step11, false); return }
+          if (cancelled) { setGlow(smoteStep, false); return }
           const bus = { x: container.clientWidth / 2, y: rect(models[0]).top - 24 }
           await moveTo(bus.x, bus.y)
-          if (cancelled) { setGlow(step11, false); return }
+          if (cancelled) { setGlow(smoteStep, false); return }
           const targets = models.map((m) => rect(m))
           const miniState = targets.map(() => ({ x: bus.x, y: bus.y }))
           minis.forEach((d, i) => {
@@ -318,18 +304,18 @@ export function PipelineFlow() {
           })
           dot.style.opacity = '0'
           await later(350 / speed)
-          if (cancelled) { setGlow(step11, false); return }
+          if (cancelled) { setGlow(smoteStep, false); return }
           await Promise.all(targets.map((t, i) => {
             const d = minis[i]
             if (!d) return Promise.resolve()
             return moveEl(d, miniState[i], t.x, bus.y)
               .then(() => { if (!cancelled) return moveEl(d, miniState[i], t.x, t.y) })
           }))
-          if (cancelled) { setGlow(step11, false); return }
+          if (cancelled) { setGlow(smoteStep, false); return }
           setGlow(models, true)
           await later(GLOW_MS)
           setGlow(models, false)
-          setGlow(step11, false)
+          setGlow(smoteStep, false)
           await Promise.all(targets.map((t, i) => {
             const d = minis[i]
             if (!d) return Promise.resolve()
@@ -341,7 +327,7 @@ export function PipelineFlow() {
           await later(350 / speed)
           if (cancelled) return
         } else {
-          setGlow(step11, false)
+          setGlow(smoteStep, false)
         }
         if (canLoop && round < 4) {
           dot.style.opacity = '0'
@@ -363,9 +349,9 @@ export function PipelineFlow() {
           if (cancelled) return
           await moveTo(cx, topY, LOOP_PX_PER_SEC)
           if (cancelled) return
-          const step7 = live(6)
-          if (step7.length) {
-            const p = rect(step7[0])
+          const cvStep = live(8)
+          if (cvStep.length) {
+            const p = rect(cvStep[0])
             await moveTo(p.x, p.y)
             if (cancelled) return
           }
@@ -375,7 +361,7 @@ export function PipelineFlow() {
             if (cancelled) return
           }
         }
-        const tail0 = live(10)
+        const tail0 = live(12)
         if (tail0.length) {
           const p = rect(tail0[0])
           setDot(p.x, p.y)
@@ -383,7 +369,7 @@ export function PipelineFlow() {
         dot.style.opacity = '1'
         await later(450 / speed)
         if (cancelled) return
-        for (let s = 10; s <= 16; s++) {
+        for (let s = 12; s <= 15; s++) {
           if (cancelled) return
           const els = live(s)
           if (!els.length) continue
@@ -473,14 +459,14 @@ export function PipelineFlow() {
           <Wire h="h-5" />
           <FoldLoop steps={loopSteps} reg={reg} bracketRef={bracketRef} />
           <Wire h="h-5" />
-          <FlowNode step={tuningStep} boxRef={reg(8)} />
+          <FlowNode step={tuningStep} boxRef={reg(10)} />
           <Wire h="h-5" />
           <ChipRow chip={PHASE3} rowRef={phase3Ref} />
           <ModelBranch models={MODELS} reg={reg} />
           {post.map((s, idx) => (
             <Fragment key={s.n}>
               {idx > 0 && <Wire />}
-              <FlowNode step={s} boxRef={reg(10 + idx)} />
+              <FlowNode step={s} boxRef={reg(12 + idx)} />
             </Fragment>
           ))}
         </div>

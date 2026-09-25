@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FigureCatalog, FigureCategories, FigureModels } from '../lib/figureCatalog.js'
+import { FigureCatalog, FigureCategories, FigureModels, FigureStalenessNote } from '../lib/figureCatalog.js'
 
 function Badges({ figure }) {
   return (
@@ -10,6 +10,7 @@ function Badges({ figure }) {
       {figure.experiment !== '' && (
         <span className="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-xs">{figure.experiment}</span>
       )}
+      <span className="rounded-full bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 text-xs">pre-retraining</span>
     </div>
   )
 }
@@ -75,6 +76,7 @@ export function Performance() {
       <div className="max-w-[72ch]">
         <h1 className="text-[1.7rem] sm:text-2xl font-extrabold tracking-tight text-slate-900">Model performance figures</h1>
         <p className="mt-2 text-[0.95rem] leading-relaxed text-slate-600">Training and evaluation artifacts from ML-EXP-001 and ML-EXP-002 covering class balance, 5-fold cross-validation, model comparison, held-out test evaluation, and deployment bands, rendered from public/figures/.</p>
+        <p className="mt-3 text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 leading-relaxed">{FigureStalenessNote}</p>
       </div>
 
       <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">

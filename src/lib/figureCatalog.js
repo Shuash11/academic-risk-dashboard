@@ -14,6 +14,11 @@ export const FigureModels = [
   'Dummy (stratified)',
 ]
 
+// All catalog figures depict the PRE-RETRAINING experiments (ML-EXP-001 /
+// ML-EXP-002): they show the earlier pipeline's results and are superseded by
+// the retrained numbers on the Evaluation page. Kept for reference only.
+export const FigureStalenessNote = 'Figures from the pre-retraining experiments (ML-EXP-001 / ML-EXP-002) — they depict the earlier pipeline\u2019s results and are superseded by the retrained numbers on the Evaluation page.'
+
 export const FigureCatalog = [
   {
     id: 'class-distribution',

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 
 const MODEL_COLORS = {
+  dummy: '#64748b',
   decision_tree: '#059669',
   random_forest: '#1d4e89',
   logistic_regression: '#7c3aed',
@@ -66,8 +67,11 @@ function ImportanceBarChart({ features, color, topN = 15 }) {
 
 function TopFeaturesSummary({ models }) {
   const consensus = useMemo(() => {
+    // The Dummy baseline learns no feature signal — exclude it from the
+    // classifier consensus so averages stay meaningful.
+    const classifiers = models.filter(([, m]) => (m.features || []).length > 0)
     const featureMap = {}
-    models.forEach(([id, data]) => {
+    classifiers.forEach(([id, data]) => {
       data.features.forEach((f, idx) => {
         if (!featureMap[f.name]) featureMap[f.name] = { name: f.name, appearsIn: 0, totalImportance: 0, bestRank: Infinity, models: [] }
         featureMap[f.name].appearsIn++
@@ -79,7 +83,7 @@ function TopFeaturesSummary({ models }) {
       })
     })
 
-    const n = models.length
+    const n = classifiers.length
     return Object.values(featureMap)
       .map((f) => ({ ...f, avgImportance: f.totalImportance / n }))
       .filter((f) => f.avgImportance > 0)
@@ -87,17 +91,19 @@ function TopFeaturesSummary({ models }) {
       .slice(0, 8)
   }, [models])
 
+  const classifierCount = models.filter(([, m]) => (m.features || []).length > 0).length
+
   return (
     <div className="rounded-2xl bg-slate-900 text-white p-6">
       <h3 className="font-bold">Key predictors across all models</h3>
-      <p className="mt-1 text-xs text-slate-400">Ranked by average importance across all four algorithms.</p>
+      <p className="mt-1 text-xs text-slate-400">Ranked by average importance across the {classifierCount} classifiers (the Dummy baseline learns no feature signal).</p>
       <ol className="mt-4 space-y-3">
         {consensus.map((f, i) => (
           <li key={f.name} className="flex items-start gap-3">
             <span className="shrink-0 w-6 h-6 rounded-full bg-white/15 text-white flex items-center justify-center text-xs font-bold">{i + 1}</span>
             <div className="min-w-0">
               <p className="text-sm font-semibold">{f.name}</p>
-              <p className="text-xs text-slate-400">Avg importance {(f.avgImportance * 100).toFixed(1)}% · present in {f.appearsIn}/{4} models</p>
+              <p className="text-xs text-slate-400">Avg importance {(f.avgImportance * 100).toFixed(1)}% · present in {f.appearsIn}/{classifierCount} classifiers</p>
             </div>
           </li>
         ))}
@@ -137,13 +143,14 @@ export function FeatureImportance() {
   }
 
   const models = Object.entries(data.models)
+  const selectableModels = models.filter(([id]) => id !== 'dummy')
   const currentFeatures = data.models[selectedModel]?.features || []
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-10">
       <div className="max-w-[72ch]">
         <h1 className="text-[1.7rem] sm:text-2xl font-extrabold tracking-tight text-slate-900">Feature Importance</h1>
-        <p className="mt-2 text-[0.95rem] leading-relaxed text-slate-600">Which academic variables contribute most to predicting at-risk status across the four models.</p>
+        <p className="mt-2 text-[0.95rem] leading-relaxed text-slate-600">Which academic variables contribute most to predicting at-risk on the student's NEXT record (t+1), across the retrained models.</p>
       </div>
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -153,7 +160,7 @@ export function FeatureImportance() {
               <p className="text-xs font-bold tracking-wide uppercase text-slate-600">Select model</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {models.map(([id, m]) => (
+              {selectableModels.map(([id, m]) => (
                 <button
                   key={id}
                   onClick={() => setSelectedModel(id)}
@@ -166,6 +173,12 @@ export function FeatureImportance() {
             </div>
             <div className="mt-5">
               <p className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">Top features — {data.models[selectedModel]?.label}</p>
+              {data.models[selectedModel]?.method && (
+                <p className="mb-3 text-xs text-slate-600">
+                  <span className="font-semibold">Method:</span> {data.models[selectedModel].method}
+                  {data.models[selectedModel]?.top5_share_statement ? <span> · {data.models[selectedModel].top5_share_statement}</span> : data.models[selectedModel]?.top5_share != null ? <span> · Top-5 features hold {((data.models[selectedModel].top5_share) * 100).toFixed(1)}% of total importance.</span> : null}
+                </p>
+              )}
               <ImportanceBarChart features={currentFeatures} color={MODEL_COLORS[selectedModel] || '#0f172a'} topN={15} />
             </div>
           </div>
@@ -177,32 +190,39 @@ export function FeatureImportance() {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
         {models.map(([id, m]) => (
           <div key={id} className="rounded-2xl border border-slate-200 bg-white p-5">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-1">
               <span className="w-3 h-3 rounded-full" style={{ backgroundColor: MODEL_COLORS[id] }} />
               <p className="text-sm font-bold text-slate-900">{m.label}</p>
             </div>
-            <div className="space-y-1.5">
-              {m.features.filter((f) => f.importance > 0).slice(0, 10).map((f) => (
-                <div key={f.name} className="flex items-center gap-2">
-                  <span className="text-xs text-slate-600 w-44 truncate" title={f.name}>{f.name}</span>
-                  <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: (f.importance * 100) + '%', backgroundColor: MODEL_COLORS[id] }} />
+            <p className="text-xs text-slate-500">{m.method || '—'}{m.top5_share_statement ? <span> · {m.top5_share_statement}</span> : m.top5_share != null ? <span> · Top-5 share {(m.top5_share * 100).toFixed(1)}%</span> : null}</p>
+            {m.features.filter((f) => f.importance > 0).length > 0 ? (
+              <div className="mt-3 space-y-1.5">
+                {m.features.filter((f) => f.importance > 0).slice(0, 10).map((f) => (
+                  <div key={f.name} className="flex items-center gap-2">
+                    <span className="text-xs text-slate-600 w-44 truncate" title={f.name}>{f.name}</span>
+                    <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: (f.importance * 100) + '%', backgroundColor: MODEL_COLORS[id] }} />
+                    </div>
+                    <span className="text-xs font-bold tabular-nums w-14 text-right">{(f.importance * 100).toFixed(2)}%</span>
                   </div>
-                  <span className="text-xs font-bold tabular-nums w-14 text-right">{(f.importance * 100).toFixed(2)}%</span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-slate-500 italic rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center">{m.top5_share_statement || 'No learned feature signal (baseline).'}</p>
+            )}
           </div>
         ))}
       </div>
 
       <div className="mt-6 rounded-2xl bg-white border border-slate-200 p-6">
         <h3 className="font-bold text-slate-900">How feature importance works</h3>
+        <p className="mt-1 text-sm text-slate-600">These are the retrained models' importances (leakage-free temporal evaluation). Each card states the method used — rendered from feature_importance.json, not hardcoded.</p>
         <ul className="mt-3 space-y-2 text-sm text-slate-600 list-disc ml-5 marker:text-slate-400">
-          <li><strong>Decision Tree & Random Forest:</strong> Importance = total decrease in Gini impurity (or information gain) attributed to each feature across all splits.</li>
-          <li><strong>Logistic Regression:</strong> Importance = absolute value of the learned coefficient for each feature (normalized to sum to 1).</li>
-          <li><strong>Naive Bayes:</strong> Importance = absolute difference of class-conditional means (proxy for discriminative power).</li>
-          <li>All importance values are normalized to sum to 100% per model for comparability.</li>
+          <li><strong>Decision Tree & Random Forest:</strong> Importance = impurity-based (Gini) <code className="bg-slate-100 border border-slate-200 rounded px-1">feature_importances_</code>.</li>
+          <li><strong>Logistic Regression:</strong> Importance = normalized absolute coefficients <code className="bg-slate-100 border border-slate-200 rounded px-1">|coef|</code>.</li>
+          <li><strong>Naive Bayes:</strong> Importance = normalized absolute class-conditional mean difference.</li>
+          <li><strong>Dummy:</strong> No learned feature signal (baseline learns no feature signal).</li>
+          <li>Importance reflects how much each model relies on a feature — not causal significance.</li>
         </ul>
       </div>
     </div>

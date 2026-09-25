@@ -5,7 +5,7 @@ const MODELS = [
     id: 'decision_tree',
     name: 'Decision Tree',
     short: 'DT',
-    size: '~286 KB',
+    size: '~42 KB',
     color: 'bg-emerald-600',
     desc: 'Interpretable, axis-aligned splits. Fastest cold-start, tiny payload, exact parity with scikit-learn.',
     strengths: ['Instant load', 'Fully interpretable', 'Deterministic bands'],
@@ -15,10 +15,10 @@ const MODELS = [
     id: 'random_forest',
     name: 'Random Forest',
     short: 'RF',
-    size: '~23 MB',
+    size: '56.3 MB',
     color: 'bg-slate-900',
-    desc: 'Ensemble of trees (majority vote). Most robust, higher memory and slower to load due to ~23 MB model.',
-    strengths: ['Best generalization on parity test', 'Robust to missing imputation', 'Stable probabilities'],
+    desc: 'Ensemble of trees (majority vote). Most robust, higher memory and slower to load due to 56.3 MB model.',
+    strengths: ['Labels match ONNX exactly', 'Robust to missing imputation', 'Stable probabilities'],
     trade: 'Large download; heavier WASM inference.',
   },
   {
@@ -27,15 +27,15 @@ const MODELS = [
     short: 'LR',
     size: '~4 KB',
     color: 'bg-brand-primary',
-    desc: 'Linear model + sigmoid. Calibrated probabilities, well-understood coefficients, parity atol 4e-08.',
+    desc: 'Linear model + sigmoid. Calibrated probabilities, well-understood coefficients, parity Δ 9.35e-08.',
     strengths: ['Tiny', 'Well-calibrated', 'Fast'],
     trade: 'Linear boundary only.',
   },
   {
     id: 'naive_bayes',
-    name: 'Naïve Bayes',
+    name: 'Naive Bayes',
     short: 'NB',
-    size: '~5 KB',
+    size: '~6 KB',
     color: 'bg-indigo-600',
     desc: 'Probabilistic generative model assuming feature independence. Very fast and compact.',
     strengths: ['Fastest inference', 'Good with categorical modes', 'Tiny'],
@@ -104,8 +104,8 @@ export function About() {
       <div className="mt-6 rounded-2xl bg-white border border-slate-200 p-6">
         <h3 className="font-bold text-slate-900">Which should you use?</h3>
         <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-700">
-          <li className="rounded-xl bg-slate-50 border border-slate-200 p-3"><span className="font-semibold">Quick demo / low bandwidth:</span> Decision Tree or Naïve Bayes</li>
-          <li className="rounded-xl bg-slate-50 border border-slate-200 p-3"><span className="font-semibold">Most stable screening:</span> Random Forest (if 23 MB load is OK)</li>
+          <li className="rounded-xl bg-slate-50 border border-slate-200 p-3"><span className="font-semibold">Quick demo / low bandwidth:</span> Decision Tree or Naive Bayes</li>
+          <li className="rounded-xl bg-slate-50 border border-slate-200 p-3"><span className="font-semibold">Most stable screening:</span> Random Forest (if the 56.3 MB load is OK)</li>
           <li className="rounded-xl bg-slate-50 border border-slate-200 p-3"><span className="font-semibold">Calibrated probabilities:</span> Logistic Regression</li>
           <li className="rounded-xl bg-slate-50 border border-slate-200 p-3"><span className="font-semibold">Side-by-side:</span> Compare all → bands + histogram + per-row drilldown</li>
         </ul>

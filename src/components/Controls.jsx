@@ -29,9 +29,9 @@ export function Controls({
             {[
               { id: 'compare-all', label: 'Compare all', sub: '4 models', icon: '◈', accent: 'bg-slate-900 text-white border-slate-900' },
               { id: 'decision_tree', label: 'Decision Tree', sub: 'fast, lightweight', icon: 'DT', accent: 'bg-emerald-600 text-white border-emerald-600' },
-              { id: 'random_forest', label: 'Random Forest', sub: '~23 MB', icon: 'RF', accent: 'bg-brand-primary text-white border-brand-primary' },
+              { id: 'random_forest', label: 'Random Forest', sub: '56.3 MB', icon: 'RF', accent: 'bg-brand-primary text-white border-brand-primary' },
               { id: 'logistic_regression', label: 'Logistic Regression', sub: 'calibrated', icon: 'LR', accent: 'bg-indigo-600 text-white border-indigo-600' },
-              { id: 'naive_bayes', label: 'Naïve Bayes', sub: 'tiny & fast', icon: 'NB', accent: 'bg-violet-600 text-white border-violet-600' },
+              { id: 'naive_bayes', label: 'Naive Bayes', sub: 'tiny & fast', icon: 'NB', accent: 'bg-violet-600 text-white border-violet-600' },
             ].map((m) => {
               const active = selectedModel === m.id
               return (
@@ -151,7 +151,7 @@ export function Controls({
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Scoring {runProgress ? `${runProgress.current}/${runProgress.total}` : ''} — {runProgress?.label || 'working…'}
                     </p>
                     <p className="text-xs leading-relaxed text-slate-300 mt-1">
-                      Hold tight — {runProgress?.label === 'Random Forest' ? 'large model (~23 MB) may take a moment' : 'running locally, no upload'} • {runProgress ? Math.round((runProgress.current / runProgress.total) * 100) : 0}% • {runProgress?.current === runProgress?.total ? 'finalizing…' : 'do not close this tab'}
+                      Hold tight — {runProgress?.label === 'Random Forest' ? 'large model (56.3 MB) may take a moment' : 'running locally, no upload'} • {runProgress ? Math.round((runProgress.current / runProgress.total) * 100) : 0}% • {runProgress?.current === runProgress?.total ? 'finalizing…' : 'do not close this tab'}
                     </p>
                     <div className="mt-2 flex items-center gap-2">
                       <div className="flex-1 max-w-[220px] h-1.5 bg-white/15 rounded-full overflow-hidden">
